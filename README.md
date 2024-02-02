@@ -4,6 +4,7 @@ No more clicking.
 
 - Hover over the **big cookie** to click it
 - Hover over a **golden cookie** to click it
+- Hover over a **reindeer** to click it
 - Hover over a **wrinkler** to pop it
 - Hover over a news ticker **fortune** to click it
 
