@@ -48,7 +48,7 @@ const mod = {
             Object.defineProperty(wrinkler, "selected", {
                 get: function () { return this._selected },
                 set: function (value) {
-                    if (value === 1 && this.phase === 2 && mod.prefs.clickWrinkler) this.hp = -10;
+                    if (value === 1 && this.phase === 2 && this.type === 0 && mod.prefs.clickWrinkler) this.hp = -10;
                     this._selected = value;
                 }
             });
