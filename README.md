@@ -1,13 +1,7 @@
-## Hoverclicker
+# Cookie Clicker Mods
 
-No more clicking.
+QOL mods to improve the overall experience of [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/) without altering the game too much.
 
-- Hover over the **big cookie** to click it
-- Hover over a **golden cookie** to click it
-- Hover over a **reindeer** to click it
-- Hover over a **wrinkler** to pop it
-- Hover over a news ticker **fortune** to click it
+## [Hoverclicker](./hoverclicker/README.md)
 
-Compatible with Cookie Monster
-
-[Source](hoverclicker/main.js) | [Userscript](hoverclicker/userscript.js) | [Bookmarklet](hoverclicker/bookmarklet.js)
+Click the big cookie, golden cookies and more by just hovering over them.
