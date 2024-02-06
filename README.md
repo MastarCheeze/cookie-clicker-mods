@@ -1,5 +1,3 @@
-# Cookie Clicker Mods
-
 QOL mods to improve the overall experience of [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/) without altering the game too much.
 
 ## [Hoverclicker](./hoverclicker/README.md)
