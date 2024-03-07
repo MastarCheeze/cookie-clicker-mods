@@ -5,6 +5,8 @@ import load, { Game } from "./base/loader";
 import Keybind from "./keybind";
 import Actions from "./actions/actions";
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 // FUTURE export/load keymappings to/from string
 class Mod {
     id = Storage.id;
@@ -27,10 +29,15 @@ class Mod {
                 }
             }
 
-            toRun.sort((a, b) => b[0] - a[0]); // sort largest to smallest
-            for (const [, shortcutName, args] of toRun) {
-                (Actions[shortcutName] as any)(...args);
-            }
+            toRun.sort((a, b) => a[0] - b[0]); // sort smallest to largest
+            (async () => {
+                let lastOrder = -100;
+                for (const [order, shortcutName, args] of toRun) {
+                    (Actions[shortcutName] as any)(...args);
+                    if (order != lastOrder) await sleep(150);
+                    lastOrder = order;
+                }
+            })();
         }
         document.addEventListener("keydown", keyDown, false);
 

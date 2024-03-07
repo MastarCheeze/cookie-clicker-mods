@@ -127,12 +127,14 @@ export class Shortcut<T extends keyof TKeybinds> extends Base.Listing {
         editButton.triggerCallback.attach(() => showShortcutEditor(shortcutPair));
         rightDiv.appendChild(editButton.write());
 
-        if (Storage.prefs.advanced) {
+        if (Storage.prefs.runButtons) {
             const run = new Base.Button("▶");
             run.addStyle("width: 10px; padding: 4px 5px; text-align: center;");
             run.triggerCallback.attach(() => (actions[this.shortcutName] as any).apply(undefined, shortcutPair[2]));
             rightDiv.appendChild(run.write());
+        }
 
+        if (Storage.prefs.advanced) {
             const order = new Base.NumberInput(-99, 99);
             order.value._ = shortcutPair[1];
             order.triggerCallback.attach(() => (shortcutPair[1] = order.value._));

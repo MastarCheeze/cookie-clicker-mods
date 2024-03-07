@@ -53,6 +53,25 @@ export default new Collapsible("🍪 General").add(
 
         return [frag];
     }),
+    new Shortcut("general.ascend", (params) => {
+        const frag = new DocumentFragment();
+
+        frag.appendChild(new Text("Ascend/reincarcenate").write());
+
+        const force = new OnOffButton(`${warning} Skip menu`);
+        force.addStyle("width: 100px;");
+        assignParam(force, params, 0);
+        frag.appendChild(force.write());
+
+        if (force.value._) {
+            const force = new OnOffButton(`Skip animation`);
+            force.addStyle("width: 110px;");
+            assignParam(force, params, 1);
+            frag.appendChild(force.write());
+        }
+
+        return [frag];
+    }),
     new TitleShortcut("general.save", "Save game"),
     new TitleShortcut("general.exportSave", "Export save", "Opens the export save menu"),
     new TitleShortcut("general.exportSaveToFile", "Export save to file"),
@@ -68,18 +87,6 @@ export default new Collapsible("🍪 General").add(
         "Import save from clipboard",
         "Imports a game from the save string on your clipboard",
     ),
-    new Shortcut("general.ascend", (params) => {
-        const frag = new DocumentFragment();
-
-        frag.appendChild(new Text("Ascend/reincarcenate").write());
-
-        const button = new OnOffButton(`${warning} Skip menu`);
-        button.addStyle("width: 100px;");
-        assignParam(button, params, 0);
-        frag.appendChild(button.write());
-
-        return [frag];
-    }),
     new TitleShortcut("general.options", "Options menu"),
     new TitleShortcut("general.info", "Info menu"),
     new TitleShortcut("general.stats", "Stats menu"),

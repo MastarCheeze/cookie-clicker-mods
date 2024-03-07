@@ -50,6 +50,7 @@ class Storage {
         protectVeil: true,
         protectShiny: true,
         verbose: true,
+        runButtons: false,
         advanced: false,
         cheats: false,
     };
@@ -65,7 +66,7 @@ class Storage {
         "general.importSave": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("Ctrl", "KeyO"), this.defaultOrder, []]],
         "general.importSaveFromFile": [[null, this.defaultOrder, []]],
         "general.importSaveFromClipboard": [[null, this.defaultOrder, []]],
-        "general.ascend": [[null, this.defaultOrder, [false]]],
+        "general.ascend": [[null, this.defaultOrder, [false, true]]],
         "general.options": [[null, this.defaultOrder, []]],
         "general.info": [[null, this.defaultOrder, []]],
         "general.stats": [[null, this.defaultOrder, []]],
@@ -122,8 +123,8 @@ class Storage {
         this.collapsibles = value["collapsibles"];
     }
     resetAllToDefaults = () => {
-        Object.assign(this.prefs, this.defaultPrefs);
-        Object.assign(this.keybinds, this.defaultKeybinds);
+        Object.assign(this.prefs, structuredClone(this.defaultPrefs));
+        Object.assign(this.keybinds, structuredClone(this.defaultKeybinds));
     };
     // exposed functions for keybind editor for string callbacks
     exposed = {};
@@ -413,11 +414,13 @@ class Shortcut extends _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Listing
         editButton.addStyle("width: 10px; padding: 4px 5px; text-align: center;");
         editButton.triggerCallback.attach(() => (0,_ui__WEBPACK_IMPORTED_MODULE_5__.showShortcutEditor)(shortcutPair));
         rightDiv.appendChild(editButton.write());
-        if (_storage__WEBPACK_IMPORTED_MODULE_4__["default"].prefs.advanced) {
+        if (_storage__WEBPACK_IMPORTED_MODULE_4__["default"].prefs.runButtons) {
             const run = new _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Button("▶");
             run.addStyle("width: 10px; padding: 4px 5px; text-align: center;");
             run.triggerCallback.attach(() => _actions_actions__WEBPACK_IMPORTED_MODULE_0__["default"][this.shortcutName].apply(undefined, shortcutPair[2]));
             rightDiv.appendChild(run.write());
+        }
+        if (_storage__WEBPACK_IMPORTED_MODULE_4__["default"].prefs.advanced) {
             const order = new _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.NumberInput(-99, 99);
             order.value._ = shortcutPair[1];
             order.triggerCallback.attach(() => (shortcutPair[1] = order.value._));
@@ -642,12 +645,18 @@ __webpack_require__.r(__webpack_exports__);
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Invalid save string");
         }
     },
-    ascend: (force) => {
+    ascend: (force, skipAnimation) => {
         if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer === 0) {
-            if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.OnAscend)
+            if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.OnAscend) {
                 _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Ascend(force);
-            else
+                if (skipAnimation)
+                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendDuration;
+            }
+            else {
                 _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Reincarnate(force);
+                if (skipAnimation)
+                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateTimer = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateDuration;
+            }
         }
     },
     options: () => {
@@ -2561,15 +2570,21 @@ __webpack_require__.r(__webpack_exports__);
     frag.appendChild(which.write());
     frag.appendChild(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("wrinkler").write());
     return [frag];
-}), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.save", "Save game"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSave", "Export save", "Opens the export save menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSaveToFile", "Export save to file"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSaveToClipboard", "Export save to clipboard", "Copies the save string to your clipboard"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSave", "Import save", "Opens the import save menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSaveFromFile", "Import save from file"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSaveFromClipboard", "Import save from clipboard", "Imports a game from the save string on your clipboard"), new _component__WEBPACK_IMPORTED_MODULE_1__.Shortcut("general.ascend", (params) => {
+}), new _component__WEBPACK_IMPORTED_MODULE_1__.Shortcut("general.ascend", (params) => {
     const frag = new DocumentFragment();
     frag.appendChild(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Ascend/reincarcenate").write());
-    const button = new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.OnOffButton(`${_helpers__WEBPACK_IMPORTED_MODULE_2__.warning} Skip menu`);
-    button.addStyle("width: 100px;");
-    (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.assignParam)(button, params, 0);
-    frag.appendChild(button.write());
+    const force = new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.OnOffButton(`${_helpers__WEBPACK_IMPORTED_MODULE_2__.warning} Skip menu`);
+    force.addStyle("width: 100px;");
+    (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.assignParam)(force, params, 0);
+    frag.appendChild(force.write());
+    if (force.value._) {
+        const force = new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.OnOffButton(`Skip animation`);
+        force.addStyle("width: 110px;");
+        (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.assignParam)(force, params, 1);
+        frag.appendChild(force.write());
+    }
     return [frag];
-}), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.options", "Options menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.info", "Info menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.stats", "Stats menu")));
+}), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.save", "Save game"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSave", "Export save", "Opens the export save menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSaveToFile", "Export save to file"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.exportSaveToClipboard", "Export save to clipboard", "Copies the save string to your clipboard"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSave", "Import save", "Opens the import save menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSaveFromFile", "Import save from file"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.importSaveFromClipboard", "Import save from clipboard", "Imports a game from the save string on your clipboard"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.options", "Options menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.info", "Info menu"), new _component__WEBPACK_IMPORTED_MODULE_1__.TitleShortcut("general.stats", "Stats menu")));
 
 
 /***/ }),
@@ -3183,7 +3198,7 @@ __webpack_require__.r(__webpack_exports__);
     (0,_helpers__WEBPACK_IMPORTED_MODULE_3__.assignParam)(force, params, 0);
     frag.appendChild(force.write());
     return [frag];
-}), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("verbose", "Verbose", "Show notifications when a shortcut fails to run."), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("advanced", "Advanced mode", "Enables run button, run order number and duplicating shortcuts."), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Run ▶"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Label("Runs the shortcut directly.")), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Run order"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Label("When multiple shortcuts have the same keybind, the shortcut with the higher run order runs first. Useful for combo shortcuts. Note: you can set negative values.")), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Duplicate ＋ / Remove －"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Label("Enables assigning multiple keybinds to the same shortcut. Useful for combo shortcuts.")), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("cheats", "Cheats"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add((() => {
+}), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("verbose", "Verbose", "Show notifications when a shortcut fails to run."), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("runButtons", "Run buttons", "Adds buttons to runs shortcuts directly without the need to set keybinds."), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("advanced", "Advanced mode", "Enables run button, run order number and duplicating shortcuts."), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Run order"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Label("When multiple shortcuts have the same keybind, the shortcut with the lower run order runs first. Useful for combo shortcuts. Note: you can set negative values.")), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("Duplicate ＋ / Remove －"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Label("Enables assigning multiple keybinds to the same shortcut. Useful for combo shortcuts.")), new _component__WEBPACK_IMPORTED_MODULE_1__.PrefButton("cheats", "Cheats"), new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Listing().add((() => {
     const button = new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Button("Reset all to defaults");
     button.triggerCallback.attach(() => {
         _storage__WEBPACK_IMPORTED_MODULE_2__["default"].resetAllToDefaults();
@@ -3338,6 +3353,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // FUTURE export/load keymappings to/from string
 class Mod {
     id = _storage__WEBPACK_IMPORTED_MODULE_1__["default"].id;
@@ -3359,10 +3375,16 @@ class Mod {
                     }
                 }
             }
-            toRun.sort((a, b) => b[0] - a[0]); // sort largest to smallest
-            for (const [, shortcutName, args] of toRun) {
-                _actions_actions__WEBPACK_IMPORTED_MODULE_5__["default"][shortcutName](...args);
-            }
+            toRun.sort((a, b) => a[0] - b[0]); // sort smallest to largest
+            (async () => {
+                let lastOrder = -100;
+                for (const [order, shortcutName, args] of toRun) {
+                    _actions_actions__WEBPACK_IMPORTED_MODULE_5__["default"][shortcutName](...args);
+                    if (order != lastOrder)
+                        await sleep(150);
+                    lastOrder = order;
+                }
+            })();
         }
         document.addEventListener("keydown", keyDown, false);
         // remove the default game keybinds ctrl+s and ctrl+o by countering them

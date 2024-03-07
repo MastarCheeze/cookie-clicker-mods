@@ -17,6 +17,7 @@ class Storage {
         protectVeil: true,
         protectShiny: true,
         verbose: true,
+        runButtons: false,
         advanced: false,
         cheats: false,
     };
@@ -32,7 +33,7 @@ class Storage {
         "general.importSave": [[new Keybind("Ctrl", "KeyO"), this.defaultOrder, []]],
         "general.importSaveFromFile": [[null, this.defaultOrder, []]],
         "general.importSaveFromClipboard": [[null, this.defaultOrder, []]],
-        "general.ascend": [[null, this.defaultOrder, [false]]],
+        "general.ascend": [[null, this.defaultOrder, [false, true]]],
         "general.options": [[null, this.defaultOrder, []]],
         "general.info": [[null, this.defaultOrder, []]],
         "general.stats": [[null, this.defaultOrder, []]],
@@ -94,8 +95,8 @@ class Storage {
     }
 
     resetAllToDefaults = () => {
-        Object.assign(this.prefs, this.defaultPrefs);
-        Object.assign(this.keybinds, this.defaultKeybinds);
+        Object.assign(this.prefs, structuredClone(this.defaultPrefs));
+        Object.assign(this.keybinds, structuredClone(this.defaultKeybinds));
     };
 
     // exposed functions for keybind editor for string callbacks

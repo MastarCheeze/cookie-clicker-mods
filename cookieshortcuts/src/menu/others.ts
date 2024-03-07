@@ -18,12 +18,16 @@ export default new Collapsible("⚙️ Others").add(
         return [frag];
     }),
     new PrefButton("verbose", "Verbose", "Show notifications when a shortcut fails to run."),
+    new PrefButton(
+        "runButtons",
+        "Run buttons",
+        "Adds buttons to runs shortcuts directly without the need to set keybinds.",
+    ),
     new PrefButton("advanced", "Advanced mode", "Enables run button, run order number and duplicating shortcuts."),
-    new Listing().add(new Text("Run ▶"), new Label("Runs the shortcut directly.")),
     new Listing().add(
         new Text("Run order"),
         new Label(
-            "When multiple shortcuts have the same keybind, the shortcut with the higher run order runs first. Useful for combo shortcuts. Note: you can set negative values.",
+            "When multiple shortcuts have the same keybind, the shortcut with the lower run order runs first. Useful for combo shortcuts. Note: you can set negative values.",
         ),
     ),
     new Listing().add(

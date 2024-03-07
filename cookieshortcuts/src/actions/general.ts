@@ -106,10 +106,15 @@ export default {
             notify("Invalid save string");
         }
     },
-    ascend: (force: boolean) => {
+    ascend: (force: boolean, skipAnimation: boolean) => {
         if (Game.AscendTimer === 0) {
-            if (!Game.OnAscend) Game.Ascend(force);
-            else Game.Reincarnate(force);
+            if (!Game.OnAscend) {
+                Game.Ascend(force);
+                if (skipAnimation) Game.AscendTimer = Game.AscendDuration;
+            } else {
+                Game.Reincarnate(force);
+                if (skipAnimation) Game.ReincarnateTimer = Game.ReincarnateDuration;
+            }
         }
     },
     options: () => {
