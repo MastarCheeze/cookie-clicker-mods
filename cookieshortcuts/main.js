@@ -12,7 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   fragmentFromString: () => (/* binding */ fragmentFromString),
 /* harmony export */   w: () => (/* binding */ w)
 /* harmony export */ });
-const w = unsafeWindow;
+const w = (unsafeWindow || window);
 const $ = document.querySelector.bind(document);
 function fragmentFromString(str) {
     const template = document.createElement("template");
@@ -27,7 +27,6 @@ function elementFromString(str) {
         throw new Error(`Invalid html string '${str}'`);
     return element;
 }
-console.log(window, unsafeWindow);
 
 
 /***/ }),
