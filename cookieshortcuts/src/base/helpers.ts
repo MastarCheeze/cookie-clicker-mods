@@ -1,4 +1,4 @@
-export const w = (unsafeWindow || window) as any;
+export const w = unsafeWindow as any;
 export const $ = document.querySelector.bind(document);
 
 export function fragmentFromString(str: string) {
@@ -14,3 +14,5 @@ export function elementFromString(str: string) {
     if (!(element instanceof HTMLElement)) throw new Error(`Invalid html string '${str}'`);
     return element;
 }
+
+console.log(window, unsafeWindow);
