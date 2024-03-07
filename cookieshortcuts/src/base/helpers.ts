@@ -1,4 +1,4 @@
-export const w = unsafeWindow as any;
+export const w = (unsafeWindow || window) as any;
 export const $ = document.querySelector.bind(document);
 
 export function fragmentFromString(str: string) {

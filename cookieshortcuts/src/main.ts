@@ -1,4 +1,4 @@
-import { $ } from "./base/helpers";
+import { $, w } from "./base/helpers";
 import Storage from "./storage";
 import build from "./menu/menu";
 import load, { Game } from "./base/loader";
@@ -42,7 +42,7 @@ class Mod {
         document.addEventListener("keydown", keyDown, false);
 
         // remove the default game keybinds ctrl+s and ctrl+o by countering them
-        window.addEventListener("keydown", (e) => {
+        w.addEventListener("keydown", (e: KeyboardEvent) => {
             if (Storage.allowDefault) {
                 Storage.allowDefault = false;
                 return;

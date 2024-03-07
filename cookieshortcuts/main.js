@@ -12,7 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   fragmentFromString: () => (/* binding */ fragmentFromString),
 /* harmony export */   w: () => (/* binding */ w)
 /* harmony export */ });
-const w = unsafeWindow;
+const w = (unsafeWindow || window);
 const $ = document.querySelector.bind(document);
 function fragmentFromString(str) {
     const template = document.createElement("template");
@@ -3388,7 +3388,7 @@ class Mod {
         }
         document.addEventListener("keydown", keyDown, false);
         // remove the default game keybinds ctrl+s and ctrl+o by countering them
-        window.addEventListener("keydown", (e) => {
+        _base_helpers__WEBPACK_IMPORTED_MODULE_0__.w.addEventListener("keydown", (e) => {
             if (_storage__WEBPACK_IMPORTED_MODULE_1__["default"].allowDefault) {
                 _storage__WEBPACK_IMPORTED_MODULE_1__["default"].allowDefault = false;
                 return;
