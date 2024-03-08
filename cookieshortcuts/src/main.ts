@@ -1,6 +1,6 @@
 import mod from "./mod";
 
-const w = unsafeWindow as any;
+const w = window as any;
 
 const gameReadyInterval = setInterval(() => {
     if (w.Game === undefined || w.Game.ready === undefined || !w.Game.ready) return;

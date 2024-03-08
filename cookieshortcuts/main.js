@@ -3402,7 +3402,7 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mod__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 
-const w = unsafeWindow;
+const w = window;
 const gameReadyInterval = setInterval(() => {
     if (w.Game === undefined || w.Game.ready === undefined || !w.Game.ready)
         return;
