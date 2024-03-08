@@ -1,6 +1,5 @@
-import { Game, Grimoire } from "../base/loader";
+import { Game, Grimoire } from "../aliases";
 import { notify } from "../menu/ui";
-import Storage from "../storage";
 import applyDecorator from "./applydecorator";
 
 const spellIndexMap = [

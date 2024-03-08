@@ -1,5 +1,7 @@
-import { w, elementFromString, fragmentFromString } from "../helpers";
+import { elementFromString, fragmentFromString } from "./stringtohtml";
 import { CallbackModule, Component, ValueModule } from "./componentbase";
+
+const w = window as any;
 
 export let css = "";
 function tickSound() {

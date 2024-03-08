@@ -1,7 +1,7 @@
 import { Text, OnOffButton, Dropdown, NumberInput, Listing, Label } from "../base/menu/component";
 import { Collapsible, Shortcut, TitleShortcut } from "./component";
 import { assignParam } from "./helpers";
-import { Game } from "../base/loader";
+import { Game } from "../aliases";
 
 export default new Collapsible("📈 Stock market").add(
     new Shortcut("market.good", (params) => {

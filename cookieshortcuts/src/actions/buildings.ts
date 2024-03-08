@@ -1,4 +1,4 @@
-import { Game } from "../base/loader";
+import { Game } from "../aliases";
 import { notify } from "../menu/ui";
 
 const buildingIndexMap = [

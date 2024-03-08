@@ -1,5 +1,4 @@
-import { $ } from "../base/helpers";
-import { Game } from "../base/loader";
+import { Game } from "../aliases";
 import { notify } from "../menu/ui";
 import applyDecorator from "./applydecorator";
 

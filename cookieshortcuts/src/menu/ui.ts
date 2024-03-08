@@ -1,5 +1,5 @@
-import { $ } from "../base/helpers";
-import { Game } from "../base/loader";
+import { $ } from "../aliases";
+import { Game } from "../aliases";
 import Keybind from "../keybind";
 import Storage from "../storage";
 import { TKeybind, TShortcutPair } from "../types";

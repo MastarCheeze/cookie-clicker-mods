@@ -1,6 +1,3 @@
-export const w = (unsafeWindow || window) as any;
-export const $ = document.querySelector.bind(document);
-
 export function fragmentFromString(str: string) {
     const template = document.createElement("template");
     template.innerHTML = str.trim();

@@ -1,5 +1,5 @@
 import actions from "../actions/actions";
-import { elementFromString } from "../base/helpers";
+import { elementFromString } from "../base/menu/stringtohtml";
 import * as Base from "../base/menu/component";
 import Keybind from "../keybind";
 import Storage from "../storage";

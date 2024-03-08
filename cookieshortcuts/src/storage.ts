@@ -1,4 +1,4 @@
-import { w } from "./base/helpers";
+import { w } from "./aliases";
 import Keybind from "./keybind";
 import { TImmutable, TMutable, TKeybind } from "./types";
 import type Actions from "./actions/actions";

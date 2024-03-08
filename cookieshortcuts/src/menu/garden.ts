@@ -1,7 +1,7 @@
 import { Text, OnOffButton, ToggleButton, Label, Dropdown, NumberInput, Listing } from "../base/menu/component";
 import { Collapsible, Shortcut } from "./component";
 import { assignParam, assignParamIntToBool, warning } from "./helpers";
-import { Game, Garden } from "../base/loader";
+import { Game, Garden } from "../aliases";
 
 export default new Collapsible("🌱 Garden").add(
     new Shortcut("garden.seed", (params) => {

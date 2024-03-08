@@ -7,26 +7,101 @@
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   $: () => (/* binding */ $),
-/* harmony export */   elementFromString: () => (/* binding */ elementFromString),
-/* harmony export */   fragmentFromString: () => (/* binding */ fragmentFromString),
-/* harmony export */   w: () => (/* binding */ w)
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-const w = (unsafeWindow || window);
-const $ = document.querySelector.bind(document);
-function fragmentFromString(str) {
-    const template = document.createElement("template");
-    template.innerHTML = str.trim();
-    return template.content;
+/* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _menu_menu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3);
+/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
+/* harmony import */ var _actions_actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(7);
+
+
+
+
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// FUTURE export/load keymappings to/from string
+class Mod {
+    id = _storage__WEBPACK_IMPORTED_MODULE_0__["default"].id;
+    name = _storage__WEBPACK_IMPORTED_MODULE_0__["default"].name;
+    init() {
+        // listen for and trigger keyboard shortcuts
+        function keyDown(e) {
+            let shortcutName;
+            const toRun = [];
+            for (shortcutName in _actions_actions__WEBPACK_IMPORTED_MODULE_4__["default"]) {
+                for (const shortcutPair of _storage__WEBPACK_IMPORTED_MODULE_0__["default"].keybinds[shortcutName]) {
+                    if (shortcutPair == null)
+                        continue;
+                    const [keybind] = shortcutPair;
+                    if (keybind == null)
+                        continue;
+                    if (_keybind__WEBPACK_IMPORTED_MODULE_3__["default"].prototype.match.call(keybind, e)) {
+                        toRun.push([shortcutPair[1], shortcutName, shortcutPair[2]]);
+                    }
+                }
+            }
+            toRun.sort((a, b) => a[0] - b[0]); // sort smallest to largest
+            (async () => {
+                let lastOrder = -100;
+                for (const [order, shortcutName, args] of toRun) {
+                    _actions_actions__WEBPACK_IMPORTED_MODULE_4__["default"][shortcutName](...args);
+                    if (order != lastOrder)
+                        await sleep(150);
+                    lastOrder = order;
+                }
+            })();
+        }
+        document.addEventListener("keydown", keyDown, false);
+        // remove the default game keybinds ctrl+s and ctrl+o by countering them
+        _aliases__WEBPACK_IMPORTED_MODULE_2__.w.addEventListener("keydown", (e) => {
+            if (_storage__WEBPACK_IMPORTED_MODULE_0__["default"].allowDefault) {
+                _storage__WEBPACK_IMPORTED_MODULE_0__["default"].allowDefault = false;
+                return;
+            }
+            if (!_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.OnAscend && _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.AscendTimer == 0) {
+                if (e.ctrlKey && e.keyCode == 83) {
+                    _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.toSave = false; // prevent save
+                }
+                else if (e.ctrlKey && e.keyCode == 79) {
+                    _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClosePrompt(); // close load save
+                }
+            }
+        });
+        // override click cookie to prevent clicks when autoclicking is enabled
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_2__.$)("#bigCookie").removeEventListener("click", _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie, false);
+        const oldFunc = _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie;
+        _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie = function (e, amount, autoclicker) {
+            if (_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.autoclickerInterval == null || autoclicker)
+                return oldFunc(e, amount);
+        };
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.mods.CookieMonster) {
+            // Cookie monster already overrides big cookie click event
+            (0,_aliases__WEBPACK_IMPORTED_MODULE_2__.$)("#bigCookie").addEventListener("click", _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie, false);
+        }
+    }
+    delayedInit() {
+        (0,_menu_menu__WEBPACK_IMPORTED_MODULE_1__["default"])();
+    }
+    save() {
+        const save = JSON.stringify(_storage__WEBPACK_IMPORTED_MODULE_0__["default"].saveObj);
+        return save;
+    }
+    load(str) {
+        let parsed;
+        try {
+            parsed = JSON.parse(str);
+        }
+        catch (error) {
+            console.warn(`${name} - Unable to load settings. Reverting to defaults.`);
+            return;
+        }
+        _storage__WEBPACK_IMPORTED_MODULE_0__["default"].saveObj = parsed;
+        _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.UpdateMenu();
+    }
+    exposed = _storage__WEBPACK_IMPORTED_MODULE_0__["default"].exposed;
 }
-function elementFromString(str) {
-    const template = document.createElement("template");
-    template.innerHTML = str.trim();
-    const element = template.content.firstChild;
-    if (!(element instanceof HTMLElement))
-        throw new Error(`Invalid html string '${str}'`);
-    return element;
-}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new Mod());
 
 
 /***/ }),
@@ -37,8 +112,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
 
 
 class Storage {
@@ -131,11 +206,73 @@ class Storage {
 }
 const instance = new Storage();
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (instance);
-_base_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Storage = instance;
+_aliases__WEBPACK_IMPORTED_MODULE_0__.w.Storage = instance;
 
 
 /***/ }),
 /* 3 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   $: () => (/* binding */ $),
+/* harmony export */   Game: () => (/* binding */ Game),
+/* harmony export */   Garden: () => (/* binding */ Garden),
+/* harmony export */   Grimoire: () => (/* binding */ Grimoire),
+/* harmony export */   Market: () => (/* binding */ Market),
+/* harmony export */   Pantheon: () => (/* binding */ Pantheon),
+/* harmony export */   w: () => (/* binding */ w)
+/* harmony export */ });
+const $ = document.querySelector.bind(document);
+const w = window;
+const Game = w.Game;
+let Garden;
+let Market;
+let Pantheon;
+let Grimoire;
+let modsReady = false;
+const modsReadyInterval = setInterval(() => {
+    for (const mod of Object.values(Game.mods)) {
+        if (mod.init !== 0)
+            return;
+    }
+    modsReady = true;
+    clearInterval(modsReadyInterval);
+}, 100);
+// initialise shortened minigame variables
+const gardenInterval = setInterval(() => {
+    if (Game.Objects["Farm"]["minigameLoaded"]) {
+        Garden = Game.Objects["Farm"]["minigame"];
+        w.Garden = Garden; // DEBUG
+        clearInterval(gardenInterval);
+    }
+}, 1000);
+const marketInterval = setInterval(() => {
+    if (Game.Objects["Bank"]["minigameLoaded"]) {
+        Market = Game.Objects["Bank"]["minigame"];
+        w.Market = Market; // DEBUG
+        w.Market.secondsPerTick = 1; // DEBUG
+        clearInterval(marketInterval);
+    }
+}, 1000);
+const pantheonInterval = setInterval(() => {
+    if (Game.Objects["Temple"]["minigameLoaded"]) {
+        Pantheon = Game.Objects["Temple"]["minigame"];
+        w.Pantheon = Pantheon; // DEBUG
+        clearInterval(pantheonInterval);
+    }
+}, 1000);
+const grimoireInterval = setInterval(() => {
+    if (Game.Objects["Wizard tower"]["minigameLoaded"]) {
+        Grimoire = Game.Objects["Wizard tower"]["minigame"];
+        w.Grimoire = Grimoire; // DEBUG
+        clearInterval(grimoireInterval);
+    }
+}, 1000);
+
+
+/***/ }),
+/* 4 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -251,26 +388,26 @@ class Keybind {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ build)
 /* harmony export */ });
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-/* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(23);
-/* harmony import */ var _upgrades__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(25);
-/* harmony import */ var _buildings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(26);
-/* harmony import */ var _krumblor_and_santa__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(27);
-/* harmony import */ var _market__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(28);
-/* harmony import */ var _garden__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(29);
-/* harmony import */ var _pantheon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(30);
-/* harmony import */ var _grimoire__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(31);
-/* harmony import */ var _cheats__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(32);
-/* harmony import */ var _others__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(33);
-/* harmony import */ var _base_menu_injector__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(34);
+/* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _upgrades__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(26);
+/* harmony import */ var _buildings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(27);
+/* harmony import */ var _krumblor_and_santa__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(28);
+/* harmony import */ var _market__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(29);
+/* harmony import */ var _garden__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(30);
+/* harmony import */ var _pantheon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(31);
+/* harmony import */ var _grimoire__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(32);
+/* harmony import */ var _cheats__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(33);
+/* harmony import */ var _others__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(34);
+/* harmony import */ var _base_menu_injector__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(35);
 
 
 
@@ -293,7 +430,7 @@ function build() {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -304,10 +441,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   TitleShortcut: () => (/* binding */ TitleShortcut),
 /* harmony export */   css: () => (/* binding */ css)
 /* harmony export */ });
-/* harmony import */ var _actions_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1);
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
-/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
+/* harmony import */ var _actions_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
+/* harmony import */ var _base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(21);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(22);
+/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(2);
 /* harmony import */ var _ui__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 
@@ -393,16 +530,16 @@ class Shortcut extends _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Listing
         const container = new _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Listing();
         container.addStyle("display: flex;");
         // left div
-        const leftDiv = (0,_base_helpers__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<div></div>`);
-        const p = (0,_base_helpers__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<p style="text-indent: 0px;"></p>`);
+        const leftDiv = (0,_base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<div></div>`);
+        const p = (0,_base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<p style="text-indent: 0px;"></p>`);
         leftDiv.appendChild(p);
         // if (i !== 0) leftDiv.appendChild(new Base.Text("📋&nbsp;").write());
         for (const frag of this.writeContent(shortcutPair[2])) {
             p.appendChild(frag);
         }
         // right div
-        const rightDiv = (0,_base_helpers__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<div style="text-align: right; padding-left: 16px; margin-left: auto; flex: 1 0 auto;"></div>`);
-        const keybindDisplay = (0,_base_helpers__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`
+        const rightDiv = (0,_base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`<div style="text-align: right; padding-left: 16px; margin-left: auto; flex: 1 0 auto;"></div>`);
+        const keybindDisplay = (0,_base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__.elementFromString)(`
                 <div
                     class="smallFancyButton"
                     style="display: inline; padding-right: 8px; font-size: 12px; vertical-align: middle; pointer-events: none;">
@@ -467,7 +604,7 @@ class TitleShortcut extends Shortcut {
     constructor(shortcutName, text, label, writeContent = () => []) {
         super(shortcutName, (params) => {
             const frag = new DocumentFragment();
-            const div = (0,_base_helpers__WEBPACK_IMPORTED_MODULE_1__.elementFromString)("<div></div>");
+            const div = (0,_base_menu_stringtohtml__WEBPACK_IMPORTED_MODULE_1__.elementFromString)("<div></div>");
             div.appendChild(new _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Text(this.text).write());
             if (this.label)
                 div.appendChild(new _base_menu_component__WEBPACK_IMPORTED_MODULE_2__.Label(this.label).write());
@@ -482,14 +619,14 @@ class TitleShortcut extends Shortcut {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
+/* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
 /* harmony import */ var _upgrades__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10);
 /* harmony import */ var _buildings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(11);
 /* harmony import */ var _krumblor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
@@ -534,15 +671,15 @@ function addPrefix(prefix, object) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
-/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
 
@@ -551,14 +688,14 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     autoclicker: (cps) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil [off]") && _storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectVeil"]) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil [off]") && _storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectVeil"]) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Shimmering veil is on");
             return;
         }
         if (_storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval == null) {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
             _storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval = setInterval(() => {
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
             }, 1000 / cps);
             const keyUp = (e) => {
                 for (const shortcutPair of _storage__WEBPACK_IMPORTED_MODULE_3__["default"].keybinds["general.autoclicker"]) {
@@ -573,15 +710,15 @@ __webpack_require__.r(__webpack_exports__);
         }
     },
     clickGoldenCookie: (all, wrath) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil [off]") && _storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectVeil"]) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil [off]") && _storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectVeil"]) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Shimmering veil is on");
             return;
         }
-        for (const shimmer of [..._base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.shimmers]) {
+        for (const shimmer of [..._aliases__WEBPACK_IMPORTED_MODULE_0__.Game.shimmers]) {
             if (shimmer.wrath != 1 || // is golden cookie
                 wrath || // click wrath setting is on
                 shimmer.force === "cookie storm drop" || // is cookie storm drop
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.shimmerTypes[shimmer.type].chain // is chain cookie
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.shimmerTypes[shimmer.type].chain // is chain cookie
             ) {
                 shimmer.pop();
                 if (!all) {
@@ -591,17 +728,17 @@ __webpack_require__.r(__webpack_exports__);
         }
     },
     clickFortuneCookie: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.TickerEffect && _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.TickerEffect.type === "fortune") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.tickerL.click();
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.TickerEffect && _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.TickerEffect.type === "fortune") {
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.tickerL.click();
         }
     },
     popWrinkler: (fattest) => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.some((wrinkler) => wrinkler.phase === 2)) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.some((wrinkler) => wrinkler.phase === 2)) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have any wrinklers");
             return;
         }
         if (fattest) {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.reduce(function (highest, current) {
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.reduce(function (highest, current) {
                 return current.sucked > highest.sucked && (current.type === 0 || !_storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectShiny"])
                     ? current
                     : highest;
@@ -609,7 +746,7 @@ __webpack_require__.r(__webpack_exports__);
         }
         else {
             // pop all
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.forEach((wrinkler) => {
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.wrinklers.forEach((wrinkler) => {
                 if (wrinkler.phase === 2 && (wrinkler.type === 0 || !_storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["protectShiny"]))
                     wrinkler.hp = -10;
             });
@@ -617,158 +754,58 @@ __webpack_require__.r(__webpack_exports__);
     },
     save: () => {
         _storage__WEBPACK_IMPORTED_MODULE_3__["default"].allowDefault = true;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.toSave = true;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.toSave = true;
     },
     exportSave: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ExportSave();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ExportSave();
     },
     exportSaveToFile: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.FileSave();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.FileSave();
     },
     exportSaveToClipboard: () => {
-        navigator.clipboard.writeText(_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.WriteSave(1));
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Notify("Save exported to clipboard", "", undefined, true);
+        navigator.clipboard.writeText(_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.WriteSave(1));
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Notify("Save exported to clipboard", "", undefined, true);
     },
     importSave: () => {
         _storage__WEBPACK_IMPORTED_MODULE_3__["default"].allowDefault = true;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ImportSave();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ImportSave();
     },
     importSaveFromFile: () => {
         var input = document.createElement("input");
         input.type = "file";
-        input.addEventListener("change", (e) => _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.FileLoad(e));
+        input.addEventListener("change", (e) => _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.FileLoad(e));
         input.click();
     },
     importSaveFromClipboard: async () => {
         const save = await navigator.clipboard.readText();
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.LoadSave(save)) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.LoadSave(save)) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Invalid save string");
         }
     },
     ascend: (force, skipAnimation) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer === 0) {
-            if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.OnAscend) {
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Ascend(force);
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer === 0) {
+            if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.OnAscend) {
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Ascend(force);
                 if (skipAnimation)
-                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.AscendDuration;
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.AscendTimer = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.AscendDuration;
             }
             else {
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Reincarnate(force);
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Reincarnate(force);
                 if (skipAnimation)
-                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateTimer = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateDuration;
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateTimer = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ReincarnateDuration;
             }
         }
     },
     options: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("prefs");
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("prefs");
     },
     info: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("log");
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("log");
     },
     stats: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("stats");
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ShowMenu("stats");
     },
 });
-
-
-/***/ }),
-/* 8 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Game: () => (/* binding */ Game),
-/* harmony export */   Garden: () => (/* binding */ Garden),
-/* harmony export */   Grimoire: () => (/* binding */ Grimoire),
-/* harmony export */   Market: () => (/* binding */ Market),
-/* harmony export */   Pantheon: () => (/* binding */ Pantheon),
-/* harmony export */   "default": () => (/* binding */ load)
-/* harmony export */ });
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-
-let Game;
-let Garden;
-let Market;
-let Pantheon;
-let Grimoire;
-let gameReady = false;
-let modsReady = false;
-const gameReadyInterval = setInterval(() => {
-    if (_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game === undefined || _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.ready === undefined || !_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.ready)
-        return;
-    Game = _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game;
-    gameReady = true;
-    clearInterval(gameReadyInterval);
-    const modsReadyInterval = setInterval(() => {
-        for (const mod of Object.values(Game.mods)) {
-            if (mod.init !== 0)
-                return;
-        }
-        modsReady = true;
-        clearInterval(modsReadyInterval);
-    }, 100);
-    // initialise shortened minigame variables
-    const gardenInterval = setInterval(() => {
-        if (Game.Objects["Farm"]["minigameLoaded"]) {
-            Garden = Game.Objects["Farm"]["minigame"];
-            _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Garden = Garden; // DEBUG
-            clearInterval(gardenInterval);
-        }
-    }, 1000);
-    const marketInterval = setInterval(() => {
-        if (Game.Objects["Bank"]["minigameLoaded"]) {
-            Market = Game.Objects["Bank"]["minigame"];
-            _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Market = Market; // DEBUG
-            _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Market.secondsPerTick = 1; // DEBUG
-            clearInterval(marketInterval);
-        }
-    }, 1000);
-    const pantheonInterval = setInterval(() => {
-        if (Game.Objects["Temple"]["minigameLoaded"]) {
-            Pantheon = Game.Objects["Temple"]["minigame"];
-            _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Pantheon = Pantheon; // DEBUG
-            clearInterval(pantheonInterval);
-        }
-    }, 1000);
-    const grimoireInterval = setInterval(() => {
-        if (Game.Objects["Wizard tower"]["minigameLoaded"]) {
-            Grimoire = Game.Objects["Wizard tower"]["minigame"];
-            _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Grimoire = Grimoire; // DEBUG
-            clearInterval(grimoireInterval);
-        }
-    }, 1000);
-}, 100);
-function loadMod(mod) {
-    Game.registerMod(mod.id, mod);
-    Game.Notify(`${mod.name} loaded!`, "", undefined, true);
-}
-function load(mod) {
-    if (gameReady) {
-        loadMod(mod);
-    }
-    else {
-        const gameReadyInterval = setInterval(() => {
-            if (!gameReady)
-                return;
-            loadMod(mod);
-            clearInterval(gameReadyInterval);
-        }, 100);
-    }
-    if (mod.delayedInit === undefined)
-        return;
-    if (modsReady) {
-        mod.delayedInit();
-    }
-    else {
-        const modsReadyInterval = setInterval(() => {
-            if (!modsReady)
-                return;
-            mod.delayedInit();
-            clearInterval(modsReadyInterval);
-        }, 100);
-    }
-    _helpers__WEBPACK_IMPORTED_MODULE_0__.w.mod = mod; // DEBUG
-}
 
 
 /***/ }),
@@ -780,29 +817,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   notify: () => (/* binding */ notify),
 /* harmony export */   showShortcutEditor: () => (/* binding */ showShortcutEditor)
 /* harmony export */ });
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3);
-/* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 
 
 
 
 function notify(text) {
-    if (_storage__WEBPACK_IMPORTED_MODULE_3__["default"].prefs["verbose"])
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Notify(text, "", undefined, 1.5);
+    if (_storage__WEBPACK_IMPORTED_MODULE_2__["default"].prefs["verbose"])
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Notify(text, "", undefined, 1.5);
 }
 function showShortcutEditor(shortcutPair) {
-    const strPath = `Game.mods["${_storage__WEBPACK_IMPORTED_MODULE_3__["default"].id}"].exposed`;
+    const strPath = `Game.mods["${_storage__WEBPACK_IMPORTED_MODULE_2__["default"].id}"].exposed`;
     const pressedKeys = [];
     const capturedKeys = [];
     let currentKeybind = null;
     // keyboard input events
-    _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorKeyDown = function (e) {
+    _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorKeyDown = function (e) {
         e.stopPropagation();
         e.preventDefault();
         if (e.metaKey) {
-            (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#shortcutEditorDisplay").textContent = "The Cmd key is not supported";
+            (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#shortcutEditorDisplay").textContent = "The Cmd key is not supported";
             currentKeybind = null;
             return;
         }
@@ -813,10 +849,10 @@ function showShortcutEditor(shortcutPair) {
         capturedKeys.length = 0;
         capturedKeys.push(...pressedKeys);
         // display sorted input shortcut on prompt
-        currentKeybind = new _keybind__WEBPACK_IMPORTED_MODULE_2__["default"](...capturedKeys);
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#shortcutEditorDisplay").textContent = _keybind__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.toString.call(currentKeybind);
+        currentKeybind = new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"](...capturedKeys);
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#shortcutEditorDisplay").textContent = _keybind__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.toString.call(currentKeybind);
     };
-    _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorKeyUp = function (e) {
+    _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorKeyUp = function (e) {
         e.stopPropagation();
         e.preventDefault();
         // remove from pressed keys
@@ -824,16 +860,16 @@ function showShortcutEditor(shortcutPair) {
         if (index > -1)
             pressedKeys.splice(index, 1);
     };
-    document.addEventListener("keydown", _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorKeyDown, true);
-    document.addEventListener("keyup", _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorKeyUp, true);
-    _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorSave = function () {
+    document.addEventListener("keydown", _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorKeyDown, true);
+    document.addEventListener("keyup", _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorKeyUp, true);
+    _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorSave = function () {
         shortcutPair[0] = currentKeybind;
     };
-    _storage__WEBPACK_IMPORTED_MODULE_3__["default"].exposed.shortcutEditorClear = function () {
+    _storage__WEBPACK_IMPORTED_MODULE_2__["default"].exposed.shortcutEditorClear = function () {
         shortcutPair[0] = null;
     };
     currentKeybind = shortcutPair[0];
-    const initialStr = shortcutPair[0] != null ? _keybind__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.toString.call(shortcutPair[0]) : "&nbsp;";
+    const initialStr = shortcutPair[0] != null ? _keybind__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.toString.call(shortcutPair[0]) : "&nbsp;";
     const prompt = `
         <noClose>
         <h3>Edit Keyboard Shortcut</h3>
@@ -847,7 +883,7 @@ function showShortcutEditor(shortcutPair) {
         document.removeEventListener('keyup', ${strPath}.shortcutEditorKeyUp, true);
         Game.ClosePrompt();
     `;
-    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Prompt(prompt, [
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Prompt(prompt, [
         ["Save", resetAndClose + `${strPath}.shortcutEditorSave(); Game.UpdateMenu();`, "float: right;"],
         ["Clear", resetAndClose + `${strPath}.shortcutEditorClear(); Game.UpdateMenu();`, "float: right;"],
         ["Cancel", resetAndClose, "float: right;"],
@@ -863,7 +899,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 
 
@@ -877,28 +913,28 @@ const seasonMap = {
 }; // season to biscuit name and season id
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     buyAll: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.storeBuyAll() === false) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.storeBuyAll() === false) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Inspired checklist unlocked yet");
         }
     },
     switchSeason: (action, season) => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.HasUnlocked("Season switcher")) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.HasUnlocked("Season switcher")) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Season switcher unlocked yet");
             return;
         }
         const [upgrade, seasonName] = seasonMap[season];
         if (upgrade !== undefined) {
             if (action === "Toggle") {
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
             }
             else if (action === "Switch on") {
-                if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.season !== seasonName)
-                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
+                if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.season !== seasonName)
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
             }
             else if (action === "Switch off") {
                 if (season !== "Any season") {
-                    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.season === seasonName)
-                        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
+                    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.season === seasonName)
+                        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
                 }
             }
         }
@@ -910,57 +946,57 @@ const seasonMap = {
                 "fools": "Fool's biscuit",
                 "easter": "Bunny biscuit",
                 "": null,
-            }[_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.season];
+            }[_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.season];
             if (upgrade != null)
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades[upgrade].buy();
         }
     },
     goldenSwitch: (action) => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Golden switch")) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Golden switch")) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Golden switch unlocked yet");
             return;
         }
         if (action === "Toggle") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [off]"].buy() || _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [on]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [off]"].buy() || _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [on]"].buy();
         }
         else if (action === "Switch on") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [off]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [off]"].buy();
         }
         else if (action === "Switch off") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [on]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Golden switch [on]"].buy();
         }
     },
     shimmeringVeil: (action) => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil")) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Shimmering veil")) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Shimmering veil unlocked yet");
             return;
         }
         if (action === "Toggle") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [off]"].buy() || _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [on]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [off]"].buy() || _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [on]"].buy();
         }
         else if (action === "Switch on") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [off]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [off]"].buy();
         }
         else if (action === "Switch off") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [on]"].buy();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Shimmering veil [on]"].buy();
         }
     },
     sugarFrenzy: (force) => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Sugar craving")) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Sugar craving")) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Sugar craving unlocked yet");
             return;
         }
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Sugar frenzy")) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Sugar frenzy")) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You already activated a Sugar frenzy this acension");
             return;
         }
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Sugar frenzy"].canBuy()) {
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Sugar frenzy"].canBuy()) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You can't afford Sugar frenzy");
             return;
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Sugar frenzy"].buy();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Upgrades["Sugar frenzy"].buy();
         if (force)
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ConfirmPrompt();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ConfirmPrompt();
     },
 });
 
@@ -973,7 +1009,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 
 
@@ -1006,8 +1042,8 @@ const buildingIndexMap = [
         const untilHave = actionStr.endsWith("until have");
         let buildingObj;
         let amount;
-        const oldBuyMode = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode;
-        const oldBulk = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk;
+        const oldBuyMode = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode;
+        const oldBulk = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk;
         if (amountStr === "Max" || amountStr === "All") {
             amount = 9999;
             over = true;
@@ -1020,7 +1056,7 @@ const buildingIndexMap = [
                 amount = parseInt(amountStr);
         }
         if (building !== "All buildings") {
-            buildingObj = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[building];
+            buildingObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[building];
             if (untilHave) {
                 if (amount === buildingObj.amount) {
                     (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You have enough buildings");
@@ -1042,12 +1078,12 @@ const buildingIndexMap = [
                 }
             }
             if (buy) {
-                if (!over && _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < buildingObj.getSumPrice(amount)) {
+                if (!over && _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < buildingObj.getSumPrice(amount)) {
                     (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to buy buildings");
                     return;
                 }
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = 1;
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = 1;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
                 buildingObj.buy();
             }
             else {
@@ -1055,29 +1091,29 @@ const buildingIndexMap = [
                     (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough buildings to sell");
                     return;
                 }
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = -1;
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = -1;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
                 buildingObj.sell();
             }
         }
         else {
             const amountMap = {};
-            for (const buildingName_ in _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects) {
+            for (const buildingName_ in _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects) {
                 const buildingName = buildingName_;
                 if (!untilHave)
                     amountMap[buildingName] = amount;
                 else if (buy)
-                    amountMap[buildingName] = amount - _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount;
+                    amountMap[buildingName] = amount - _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount;
                 else
-                    amountMap[buildingName] = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount - amount;
+                    amountMap[buildingName] = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount - amount;
             }
             if (buy) {
                 if (!over) {
                     let totalPrice = 0;
                     for (const [buildingName, amount] of Object.entries(amountMap)) {
-                        totalPrice += _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].getSumPrice(amount);
+                        totalPrice += _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].getSumPrice(amount);
                     }
-                    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < totalPrice) {
+                    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < totalPrice) {
                         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to buy buildings");
                         return;
                     }
@@ -1088,10 +1124,10 @@ const buildingIndexMap = [
                     for (const [buildingName, amount] of Object.entries(amountMap)) {
                         if (amount <= 0)
                             continue;
-                        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = 1;
-                        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = 1;
-                        buildingObj = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName];
-                        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies >= buildingObj.price) {
+                        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = 1;
+                        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = 1;
+                        buildingObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName];
+                        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies >= buildingObj.price) {
                             buildingObj.buy();
                             bought = true;
                             amountMap[buildingName]--;
@@ -1104,22 +1140,22 @@ const buildingIndexMap = [
             else {
                 if (!over) {
                     for (const [buildingName, amount] of Object.entries(amountMap)) {
-                        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount < amount) {
+                        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].amount < amount) {
                             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough buildings to sell");
                             return;
                         }
                     }
                 }
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = -1;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = -1;
                 for (const [buildingName, amount] of Object.entries(amountMap)) {
-                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
-                    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].sell();
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = amount;
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects[buildingName].sell();
                 }
             }
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = oldBuyMode;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = oldBulk;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.storeToRefresh = 1;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyMode = oldBuyMode;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.buyBulk = oldBulk;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.storeToRefresh = 1;
     },
 });
 
@@ -1132,10 +1168,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
 
 
@@ -1166,71 +1201,71 @@ const auraLevelRequiredMap = {
 };
 const krumblor = {
     setAura: (aura, slot) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.hasAura(aura) && aura !== "No aura")
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.hasAura(aura) && aura !== "No aura")
             return;
         const levelRequired = auraLevelRequiredMap[aura];
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevel < levelRequired) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)(`You don't have the aura ${aura} unlocked yet`);
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevel < levelRequired) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)(`You don't have the aura ${aura} unlocked yet`);
             return;
         }
-        if (slot == true && _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevel < 27) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have secondary auras unlocked yet");
+        if (slot == true && _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevel < 27) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have secondary auras unlocked yet");
             return;
         }
         const auraIndex = Object.keys(auraLevelRequiredMap).indexOf(aura);
-        let oldTab = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab;
+        let oldTab = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab;
         if (oldTab !== "dragon") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab = "dragon";
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = "dragon";
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.SetDragonAura(auraIndex, slot);
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ConfirmPrompt();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.SetDragonAura(auraIndex, slot);
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ConfirmPrompt();
         if (oldTab !== "dragon")
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(0);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(0);
         if (oldTab !== "") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab = oldTab;
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = oldTab;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
     },
     upgrade: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevels[_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevel].cost === undefined) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Krumblor is fully upgraded");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevels[_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevel].cost === undefined) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Krumblor is fully upgraded");
             return;
         }
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevels[_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.dragonLevel].cost()) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough resources to upgrade Krumblor");
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevels[_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.dragonLevel].cost()) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough resources to upgrade Krumblor");
             return;
         }
-        let oldTab = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab;
+        let oldTab = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab;
         if (oldTab !== "dragon") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab = "dragon";
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = "dragon";
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.UpgradeDragon();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.UpgradeDragon();
         if (oldTab !== "dragon")
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(0);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(0);
         if (oldTab !== "") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab = oldTab;
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = oldTab;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
     },
     pet: () => {
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Has("Pet the dragon")) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have Pet the dragon unlocked yet");
+        if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("Pet the dragon")) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Pet the dragon unlocked yet");
             return;
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.specialTab = "dragon";
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.ToggleSpecialMenu(1);
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#specialPic").click();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = "dragon";
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#specialPic").click();
     },
 };
-(0,_applydecorator__WEBPACK_IMPORTED_MODULE_3__["default"])(krumblor, (target) => (...args) => {
-    if (!_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Has("How to bake your dragon")) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have How to bake your dragon unlocked yet");
+(0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(krumblor, (target) => (...args) => {
+    if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("How to bake your dragon")) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have How to bake your dragon unlocked yet");
         return;
     }
-    if (!_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Has("A crumbly egg")) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have A crumbly egg unlocked yet");
+    if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("A crumbly egg")) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have A crumbly egg unlocked yet");
         return;
     }
     return target(...args);
@@ -1267,7 +1302,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
@@ -1275,30 +1310,30 @@ __webpack_require__.r(__webpack_exports__);
 
 const santa = {
     upgrade: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel >= 14) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel >= 14) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Santa is fully upgraded");
             return;
         }
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < Math.pow(_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel + 1, _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel + 1)) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < Math.pow(_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel + 1, _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.santaLevel + 1)) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough resources to upgrade Santa");
             return;
         }
-        let oldTab = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab;
+        let oldTab = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab;
         if (oldTab !== "santa") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = "santa";
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = "santa";
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.UpgradeSanta();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.UpgradeSanta();
         if (oldTab !== "santa")
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(0);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(0);
         if (oldTab !== "") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = oldTab;
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.specialTab = oldTab;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ToggleSpecialMenu(1);
         }
     },
 };
 (0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(santa, (target) => (...args) => {
-    if (!_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Has("A festive hat")) {
+    if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Has("A festive hat")) {
         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have A festive hat unlocked yet");
         return;
     }
@@ -1315,10 +1350,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
 
 
@@ -1368,45 +1402,45 @@ const soilRequiredFarmsMap = {
     "Wood chips": 300,
 };
 function harvestOne(plant, tileRow, tileCol, mature, mortal) {
-    const [minCol, minRow] = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plotLimits[Math.min(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Farm"].level - 1, 8)];
+    const [minCol, minRow] = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plotLimits[Math.min(_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Farm"].level - 1, 8)];
     const x = minCol + tileCol - 1;
     const y = minRow + tileRow - 1;
-    const tile = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plot[y][x];
+    const tile = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plot[y][x];
     if (tile[0] === 0)
         return;
-    const plantObj = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsById[tile[0] - 1];
+    const plantObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsById[tile[0] - 1];
     if (!(plant === "Any plant" || plant === plantObj.name))
         return;
     if (mortal && plantObj.immortal)
         return;
     if (mature && tile[1] < plantObj.mature)
         return;
-    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.harvest(x, y, true);
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.harvest(x, y, true);
     setTimeout(function () {
-        _base_helpers__WEBPACK_IMPORTED_MODULE_0__.w.PlaySound("snd/harvest1.mp3", 1, 0.2);
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.w.PlaySound("snd/harvest1.mp3", 1, 0.2);
     }, 50);
 }
 function harvestAll(plant, mature, mortal) {
-    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.harvestAll(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsById[plantIndexes.indexOf(plant)], mature, mortal);
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.harvestAll(_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsById[plantIndexes.indexOf(plant)], mature, mortal);
 }
 function plantOne(plant, tileRow, tileCol, harvestExisting) {
-    const [minCol, minRow] = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plotLimits[Math.min(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Farm"].level - 1, 8)];
+    const [minCol, minRow] = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plotLimits[Math.min(_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Farm"].level - 1, 8)];
     const x = minCol + tileCol - 1;
     const y = minRow + tileRow - 1;
     const plantIndex = plantIndexes.indexOf(plant);
-    if (!_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.canPlant(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsById[plantIndex])) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough cookies to plant seed");
+    if (!_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.canPlant(_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsById[plantIndex])) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to plant seed");
         return;
     }
-    const tile = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plot[y][x];
+    const tile = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plot[y][x];
     if (tile[0] !== 0) {
         if (harvestExisting)
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.harvest(x, y, true);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.harvest(x, y, true);
         else
             return;
     }
-    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.seedSelected = plantIndex;
-    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.clickTile(x, y);
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.seedSelected = plantIndex;
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.clickTile(x, y);
 }
 function plantAll(plant, harvestExisting) {
     const plantIndex = plantIndexes.indexOf(plant);
@@ -1414,28 +1448,28 @@ function plantAll(plant, harvestExisting) {
     let emptyTileCount = 0;
     for (let y = 0; y < 6; y++) {
         for (let x = 0; x < 6; x++) {
-            if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.isTileUnlocked(x, y)) {
-                const tile = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plot[y][x];
+            if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.isTileUnlocked(x, y)) {
+                const tile = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plot[y][x];
                 if (tile[0] === 0) {
                     emptyTileCount++;
                 }
             }
         }
     }
-    const price = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.getCost(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsById[plantIndex]) * emptyTileCount;
-    if (price > _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookies) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough cookies to plant seed");
+    const price = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.getCost(_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsById[plantIndex]) * emptyTileCount;
+    if (price > _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to plant seed");
         return;
     }
     // harvest/plant phase
     for (let y = 0; y < 6; y++) {
         for (let x = 0; x < 6; x++) {
-            if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.isTileUnlocked(x, y)) {
-                const tile = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plot[y][x];
+            if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.isTileUnlocked(x, y)) {
+                const tile = _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plot[y][x];
                 if (tile[0] === 0 || harvestExisting) {
-                    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.harvest(x, y, true);
-                    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.seedSelected = plantIndex;
-                    _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.clickTile(x, y);
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.harvest(x, y, true);
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.seedSelected = plantIndex;
+                    _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.clickTile(x, y);
                 }
             }
         }
@@ -1458,42 +1492,42 @@ const garden = {
     },
     freeze: (action) => {
         if (action === "Toggle" ||
-            (action === "Switch on" && !_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.freeze) ||
-            (action === "Switch off" && _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.freeze)) {
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.tools.freeze.func.call((0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#gardenTool-2"));
+            (action === "Switch on" && !_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.freeze) ||
+            (action === "Switch off" && _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.freeze)) {
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.tools.freeze.func.call((0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#gardenTool-2"));
         }
     },
     changeSoil: (soil) => {
         const requiredFarms = soilRequiredFarmsMap[soil];
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Farm"].amount < requiredFarms) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have this soil unlocked");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Farm"].amount < requiredFarms) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have this soil unlocked");
             return;
         }
         const soilIndex = ["Dirt", "Fertilizer", "Clay", "Pebbles", "Wood chips"].indexOf(soil);
-        if (new Date().getTime() < _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.nextSoil) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Soil changing is on cooldown");
+        if (new Date().getTime() < _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.nextSoil) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Soil changing is on cooldown");
             return;
         }
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)(`#gardenSoil-${soilIndex}`).click();
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)(`#gardenSoil-${soilIndex}`).click();
     },
     convert: (force) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsUnlockedN < _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.plantsN) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have all seeds discovered");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsUnlockedN < _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.plantsN) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have all seeds discovered");
             return;
         }
         if (!force)
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.askConvert();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.askConvert();
         else
-            _base_loader__WEBPACK_IMPORTED_MODULE_1__.Garden.convert();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Garden.convert();
     },
 };
-(0,_applydecorator__WEBPACK_IMPORTED_MODULE_3__["default"])(garden, (target) => (...args) => {
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Farm"].level < 1) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have the Garden unlocked yet");
+(0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(garden, (target) => (...args) => {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Farm"].level < 1) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have the Garden unlocked yet");
         return;
     }
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Farm"].amount < 1) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have any Farms");
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Farm"].amount < 1) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have any Farms");
         return;
     }
     return target(...args);
@@ -1509,34 +1543,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
+/* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
 
 
 
 function buyGood(goodObj, amount) {
-    const success = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.buyGood(goodObj.id, amount);
+    const success = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.buyGood(goodObj.id, amount);
     if (success) {
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.hoverOnGood = goodObj.id;
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.toRedraw = 2;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.hoverOnGood = goodObj.id;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.toRedraw = 2;
     }
     return success;
 }
 function sellGood(goodObj, amount) {
-    const success = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.sellGood(goodObj.id, amount);
+    const success = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.sellGood(goodObj.id, amount);
     if (success) {
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.hoverOnGood = goodObj.id;
-        _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.toRedraw = 2;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.hoverOnGood = goodObj.id;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.toRedraw = 2;
     }
     return success;
 }
 function calcGoodPrice(goodObj) {
-    const costIn$ = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.getGoodPrice(goodObj);
-    const cost = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookiesPsRawHighest * costIn$;
-    const overhead = 1 + 0.01 * (20 * Math.pow(0.95, _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.brokers));
+    const costIn$ = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.getGoodPrice(goodObj);
+    const cost = _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookiesPsRawHighest * costIn$;
+    const overhead = 1 + 0.01 * (20 * Math.pow(0.95, _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.brokers));
     return cost * overhead;
 }
 const goodIndexMap = [
@@ -1592,53 +1625,53 @@ const market = {
                 amount = parseInt(amountStr);
         }
         if (good !== "All stocks") {
-            goodObj = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goodsById[goodIndexMap.indexOf(good)];
+            goodObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goodsById[goodIndexMap.indexOf(good)];
             if (goodObj.building.amount <= 0) {
-                (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have the building for this stock");
+                (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have the building for this stock");
                 return;
             }
             if (untilHave) {
                 if (amount === goodObj.stock) {
-                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You have enough stocks");
+                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You have enough stocks");
                     return;
                 }
                 if (buy) {
                     amount = amount - goodObj.stock;
                     if (amount <= 0) {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You have more than enough stocks");
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You have more than enough stocks");
                         return;
                     }
                 }
                 else if (!buy) {
                     amount = goodObj.stock - amount;
                     if (amount <= 0) {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You have less than enough stocks");
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You have less than enough stocks");
                         return;
                     }
                 }
             }
-            const maxStock = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.getGoodMaxStock(goodObj);
+            const maxStock = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.getGoodMaxStock(goodObj);
             if (amount + goodObj.stock > maxStock)
                 amount = maxStock - goodObj.stock; // cap amount at max goods you can buy
             if (buy) {
                 if (goodObj.last === 2) {
-                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You cannot buy and sell the same stock in the same tick");
+                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You cannot buy and sell the same stock in the same tick");
                     return;
                 }
                 // buy n amount of one good
                 if (!buyGood(goodObj, amount)) {
                     // buy as many as possible if unable to buy desired amount
                     if (overbuy || amountStr === "Max") {
-                        buyGood(goodObj, Math.floor(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookies / calcGoodPrice(goodObj)));
+                        buyGood(goodObj, Math.floor(_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies / calcGoodPrice(goodObj)));
                     }
                     else {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough cookies to buy stock");
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to buy stock");
                     }
                 }
             }
             else {
                 if (goodObj.last === 1) {
-                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You cannot buy and sell the same stock in the same tick");
+                    (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You cannot buy and sell the same stock in the same tick");
                     return;
                 }
                 // sell n amount of one good
@@ -1648,7 +1681,7 @@ const market = {
         else {
             const amountMap = {};
             for (const goodSymbol of goodIndexMap) {
-                goodObj = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goodsById[goodIndexMap.indexOf(goodSymbol)];
+                goodObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goodsById[goodIndexMap.indexOf(goodSymbol)];
                 if (goodObj.building.amount <= 0)
                     continue;
                 if (!untilHave)
@@ -1659,9 +1692,9 @@ const market = {
                     amountMap[goodSymbol] = goodObj.stock - amount;
             }
             if (buy) {
-                for (const goodObj of Object.values(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goods)) {
+                for (const goodObj of Object.values(_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goods)) {
                     if (goodObj.last === 2) {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You cannot buy and sell the same stock in the same tick");
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You cannot buy and sell the same stock in the same tick");
                         return;
                     }
                 }
@@ -1670,10 +1703,10 @@ const market = {
                     let totalPrice = 0;
                     for (const [goodName, amount] of Object.entries(amountMap)) {
                         totalPrice +=
-                            calcGoodPrice(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goodsById[goodIndexMap.indexOf(goodName)]) * amount;
+                            calcGoodPrice(_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goodsById[goodIndexMap.indexOf(goodName)]) * amount;
                     }
-                    if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookies < totalPrice) {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough cookies to buy stock");
+                    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < totalPrice) {
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to buy stock");
                         return;
                     }
                 }
@@ -1683,8 +1716,8 @@ const market = {
                     for (const [goodName, amount] of Object.entries(amountMap)) {
                         if (amount <= 0)
                             continue;
-                        goodObj = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goodsById[goodIndexMap.indexOf(goodName)];
-                        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookies >= calcGoodPrice(goodObj)) {
+                        goodObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goodsById[goodIndexMap.indexOf(goodName)];
+                        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies >= calcGoodPrice(goodObj)) {
                             buyGood(goodObj, 1);
                             bought = true;
                             amountMap[goodName]--;
@@ -1695,67 +1728,67 @@ const market = {
                 }
             }
             else {
-                for (const goodObjLoop of Object.values(_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goods)) {
+                for (const goodObjLoop of Object.values(_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goods)) {
                     if (goodObjLoop.last === 1) {
-                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You cannot buy and sell the same stock in the same tick");
+                        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You cannot buy and sell the same stock in the same tick");
                         return;
                     }
                 }
                 // sell n amount of all goods
                 for (const [goodName, amount] of Object.entries(amountMap)) {
-                    goodObj = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.goodsById[goodIndexMap.indexOf(goodName)];
+                    goodObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.goodsById[goodIndexMap.indexOf(goodName)];
                     sellGood(goodObj, amount);
                 }
             }
         }
     },
     loan: (loan) => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.officeLevel < loanOfficeLevelRequired[loan]) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have this loan unlocked yet");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.officeLevel < loanOfficeLevelRequired[loan]) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have this loan unlocked yet");
             return;
         }
         const loanBuff = loanBuffMap[loan];
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.hasBuff(loanBuff) || _base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.hasBuff(loanBuff + " (interest)")) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You're already taking this loan");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.hasBuff(loanBuff) || _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.hasBuff(loanBuff + " (interest)")) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You're already taking this loan");
             return;
         }
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)(`#${loanMap[loan]}`).click();
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)(`#${loanMap[loan]}`).click();
     },
     hireBroker: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.brokers >= _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.getMaxBrokers()) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You already have the maximum amount of brokers");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.brokers >= _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.getMaxBrokers()) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You already have the maximum amount of brokers");
             return;
         }
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.cookies < _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.getBrokerPrice()) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Not enough cookies to buy a broker");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies < _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.getBrokerPrice()) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough cookies to buy a broker");
             return;
         }
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#bankBrokersBuy").click();
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#bankBrokersBuy").click();
     },
     upgradeOffice: () => {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.officeLevel >= 5) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("Your offices are at max level");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.officeLevel >= 5) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Your offices are at max level");
             return;
         }
-        const office = _base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.offices[_base_loader__WEBPACK_IMPORTED_MODULE_1__.Market.officeLevel];
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Cursor"].level < office.cost[1]) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have the required Cursor level");
+        const office = _aliases__WEBPACK_IMPORTED_MODULE_0__.Market.offices[_aliases__WEBPACK_IMPORTED_MODULE_0__.Market.officeLevel];
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Cursor"].level < office.cost[1]) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have the required Cursor level");
             return;
         }
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Cursor"].amount < office.cost[0]) {
-            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have enough Cursors");
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Cursor"].amount < office.cost[0]) {
+            (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have enough Cursors");
             return;
         }
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#bankOfficeUpgrade").click();
+        (0,_aliases__WEBPACK_IMPORTED_MODULE_0__.$)("#bankOfficeUpgrade").click();
     },
 };
-(0,_applydecorator__WEBPACK_IMPORTED_MODULE_3__["default"])(market, (target) => (...args) => {
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Bank"].level < 1) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have the Stock Market unlocked yet");
+(0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(market, (target) => (...args) => {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Bank"].level < 1) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have the Stock Market unlocked yet");
         return;
     }
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_1__.Game.Objects["Bank"].amount < 1) {
-        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_2__.notify)("You don't have any Banks");
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Bank"].amount < 1) {
+        (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have any Banks");
         return;
     }
     return target(...args);
@@ -1771,7 +1804,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
@@ -1792,53 +1825,53 @@ const godIndexMap = [
 ];
 const slotIndexMap = ["Diamond", "Ruby", "Jade"];
 function slot(god, to, ifOccupied) {
-    const godObj = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godIndexMap.indexOf(god)];
+    const godObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godIndexMap.indexOf(god)];
     const slot = slotIndexMap.indexOf(to);
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot] !== -1) {
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot] === godObj.id)
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot] !== -1) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot] === godObj.id)
             return;
         if (ifOccupied === "Cancel") {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("That slot is already occupied by another god");
             return;
         }
         else if (ifOccupied === "Unslot") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[_base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot]];
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[_aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot]];
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
         }
     }
-    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = godObj;
-    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = slot;
-    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
-    _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = godObj;
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = slot;
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
+    _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
 }
 function unslot(god, from) {
     if (god !== "Any god") {
         const godId = godIndexMap.indexOf(god);
-        const godObj = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
-        if (from !== "Any slot" && _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slotIndexMap.indexOf(from)] !== godId) {
+        const godObj = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
+        if (from !== "Any slot" && _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slotIndexMap.indexOf(from)] !== godId) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Cannot find god at slot");
             return;
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = godObj;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = godObj;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
     }
     else if (from !== "Any slot") {
         const slot = slotIndexMap.indexOf(from);
-        const godId = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot];
+        const godId = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot[slot];
         if (godId !== -1) {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
         }
     }
     else {
-        for (const godId of _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot) {
+        for (const godId of _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slot) {
             if (godId !== -1) {
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
-                _base_loader__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dragging = _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.godsById[godId];
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.slotHovered = -1;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Pantheon.dropGod();
             }
         }
     }
@@ -1857,11 +1890,11 @@ const pantheon = {
     },
 };
 (0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(pantheon, (target) => (...args) => {
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Temple"].level < 1) {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Temple"].level < 1) {
         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have the Pantheon unlocked yet");
         return;
     }
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Temple"].amount < 1) {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Temple"].amount < 1) {
         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have any Temples");
         return;
     }
@@ -1878,7 +1911,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
@@ -1898,19 +1931,19 @@ const spellIndexMap = [
 const grimoire = {
     cast: (spell) => {
         const spellId = spellIndexMap.indexOf(spell);
-        if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Grimoire.getSpellCost(_base_loader__WEBPACK_IMPORTED_MODULE_0__.Grimoire.spellsById[spellId]) > _base_loader__WEBPACK_IMPORTED_MODULE_0__.Grimoire.magic) {
+        if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Grimoire.getSpellCost(_aliases__WEBPACK_IMPORTED_MODULE_0__.Grimoire.spellsById[spellId]) > _aliases__WEBPACK_IMPORTED_MODULE_0__.Grimoire.magic) {
             (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("Not enough magic to cast this spell");
             return;
         }
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Grimoire.castSpell(_base_loader__WEBPACK_IMPORTED_MODULE_0__.Grimoire.spellsById[spellId]);
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Grimoire.castSpell(_aliases__WEBPACK_IMPORTED_MODULE_0__.Grimoire.spellsById[spellId]);
     },
 };
 (0,_applydecorator__WEBPACK_IMPORTED_MODULE_2__["default"])(grimoire, (target) => (...args) => {
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Wizard tower"].level < 1) {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Wizard tower"].level < 1) {
         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have Grimoire unlocked yet");
         return;
     }
-    if (_base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Wizard tower"].amount < 1) {
+    if (_aliases__WEBPACK_IMPORTED_MODULE_0__.Game.Objects["Wizard tower"].amount < 1) {
         (0,_menu_ui__WEBPACK_IMPORTED_MODULE_1__.notify)("You don't have any Wizard towers");
         return;
     }
@@ -1927,7 +1960,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var _menu_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 /* harmony import */ var _applydecorator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
@@ -1938,36 +1971,36 @@ __webpack_require__.r(__webpack_exports__);
 const cheats = {
     cookies: (action, amount) => {
         if (action === "Gain") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies += amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies += amount;
         }
         else if (action === "Set to") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.cookies = amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.cookies = amount;
         }
     },
     lumps: (action, amount) => {
         if (action === "Gain") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.lumps += amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.lumps += amount;
         }
         else if (action === "Set to") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.lumps = amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.lumps = amount;
         }
     },
     heavenlyChips: (action, amount) => {
         if (action === "Gain") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.heavenlyChips += amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.heavenlyChips += amount;
         }
         else if (action === "Set to") {
-            _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.heavenlyChips = amount;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.heavenlyChips = amount;
         }
     },
     openSesame: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.OpenSesame();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.OpenSesame();
     },
     ruinTheFun: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.RuinTheFun();
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.RuinTheFun();
     },
     party: () => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.PARTY = true;
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.PARTY = true;
     },
 };
 (0,_applydecorator__WEBPACK_IMPORTED_MODULE_3__["default"])(cheats, (target) => (...args) => {
@@ -1988,17 +2021,41 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     wipeSave: (force) => {
-        _base_loader__WEBPACK_IMPORTED_MODULE_0__.Game.HardReset(force ? 2 : 0);
+        _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.HardReset(force ? 2 : 0);
     },
 });
 
 
 /***/ }),
 /* 21 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   elementFromString: () => (/* binding */ elementFromString),
+/* harmony export */   fragmentFromString: () => (/* binding */ fragmentFromString)
+/* harmony export */ });
+function fragmentFromString(str) {
+    const template = document.createElement("template");
+    template.innerHTML = str.trim();
+    return template.content;
+}
+function elementFromString(str) {
+    const template = document.createElement("template");
+    template.innerHTML = str.trim();
+    const element = template.content.firstChild;
+    if (!(element instanceof HTMLElement))
+        throw new Error(`Invalid html string '${str}'`);
+    return element;
+}
+
+
+/***/ }),
+/* 22 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -2017,16 +2074,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   WrapperComponent: () => (/* binding */ WrapperComponent),
 /* harmony export */   css: () => (/* binding */ css)
 /* harmony export */ });
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _componentbase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony import */ var _stringtohtml__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var _componentbase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 
 
+const w = window;
 let css = "";
 function tickSound() {
-    _helpers__WEBPACK_IMPORTED_MODULE_0__.w.PlaySound("snd/tick.mp3");
+    w.PlaySound("snd/tick.mp3");
 }
 function updateMenu() {
-    _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.UpdateMenu.call(_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game);
+    w.Game.UpdateMenu.call(w.Game);
 }
 class WrapperComponent extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
     frag;
@@ -2040,7 +2098,7 @@ class WrapperComponent extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Compo
             this.frag.appendChild(value);
         }
         else if (typeof value === "string") {
-            this.frag = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(value);
+            this.frag = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(value);
         }
         else {
             throw new Error(`Invalid argument '${value}'`);
@@ -2057,7 +2115,7 @@ class StaticHTMLComponent extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Co
         this.str = str;
     }
     write() {
-        return (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(this.str);
+        return (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(this.str);
     }
 }
 // grouping components
@@ -2099,15 +2157,15 @@ class Collapsible extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component 
     }
     write() {
         const frag = new DocumentFragment();
-        const header = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
+        const header = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
             <div set-id class="title" style="font-size: ${this.size}px; margin-bottom: 0px;">
                 ${this.text}
             </div>
         `);
-        const button = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<span class="collapsibleButton">${this.value._ ? "-" : "+"}</span>`);
+        const button = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<span class="collapsibleButton">${this.value._ ? "-" : "+"}</span>`);
         button.addEventListener("click", this.triggerCallbackFunc.bind(this));
         header.appendChild(button);
-        const collapsible = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)("<div set-class set-style set-container></div>");
+        const collapsible = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)("<div set-class set-style set-container></div>");
         if (!this.value._)
             collapsible.style.cssText += "display: none !important;";
         frag.appendChild(header);
@@ -2125,7 +2183,7 @@ class Text extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
         this.size = size;
     }
     write() {
-        return (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(`
+        return (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(`
             <div set-element style="display: inline-block; font-size: ${this.size}px; vertical-align: middle;">${this.text}</div>
         `);
     }
@@ -2137,7 +2195,7 @@ class Label extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
         this.text = text;
     }
     write() {
-        return (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(`<label set-element>${this.text}</label>`);
+        return (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.fragmentFromString)(`<label set-element>${this.text}</label>`);
     }
 }
 class Button extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
@@ -2157,7 +2215,7 @@ class Button extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
         tickSound();
     }
     write() {
-        const button = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<a set-element class="smallFancyButton option">${this.text}</a>`);
+        const button = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<a set-element class="smallFancyButton option">${this.text}</a>`);
         if (!this.active)
             button.classList.add("off");
         if (this.enabled) {
@@ -2205,13 +2263,13 @@ class OnOffButton extends Button {
         tickSound();
     }
     constructor(labelText, enabled = true) {
-        super(labelText + ( false ? 0 : _helpers__WEBPACK_IMPORTED_MODULE_0__.w.OFF), false, enabled);
+        super(labelText + ( false ? 0 : w.OFF), false, enabled);
         this.labelText = labelText;
         this.enabled = enabled;
         this.value = new _componentbase__WEBPACK_IMPORTED_MODULE_1__.ValueModule(false);
     }
     write() {
-        this.text = this.labelText + (this.value._ ? _helpers__WEBPACK_IMPORTED_MODULE_0__.w.ON : _helpers__WEBPACK_IMPORTED_MODULE_0__.w.OFF);
+        this.text = this.labelText + (this.value._ ? w.ON : w.OFF);
         this.active = Boolean(this.value._);
         return super.write();
     }
@@ -2236,7 +2294,7 @@ class Dropdown extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
     }
     write() {
         const frag = new DocumentFragment();
-        const dropdown = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<select set-element></select>`);
+        const dropdown = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<select set-element></select>`);
         if (this.enabled) {
             dropdown.addEventListener("change", () => {
                 this.value._ = dropdown.value;
@@ -2249,7 +2307,7 @@ class Dropdown extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
         if (!(this.altValues ?? this.options).includes(this.value._))
             this.value._ = this.altValues?.[0] ?? this.options[0];
         for (const [i, option] of this.options.entries()) {
-            dropdown.appendChild((0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
+            dropdown.appendChild((0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
                     <option
                         value="${this.altValues?.[i] ?? option}"
                         ${this.value._ === (this.altValues?.[i] ?? option) ? "selected" : ""}>
@@ -2283,7 +2341,7 @@ class NumberInput extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component 
     }
     write() {
         const frag = new DocumentFragment();
-        const input = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
+        const input = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
             <input set-element type="number">
         `);
         if (isNaN(this.value._) || !isFinite(this.value._))
@@ -2338,11 +2396,11 @@ class Slider extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
     }
     write() {
         const frag = new DocumentFragment();
-        const container = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div set-element class="sliderBox" style="margin: 2px 4px 2px 0px;"></div>`);
-        const title = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="smallFancyButton" style="float: left;">${this.title}</div>`);
+        const container = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div set-element class="sliderBox" style="margin: 2px 4px 2px 0px;"></div>`);
+        const title = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="smallFancyButton" style="float: left;">${this.title}</div>`);
         const displayText = this.valueText.replace("[$]", this.value._.toString());
-        const valueText = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="smallFancyButton" style="float: right;">${displayText}</div>`);
-        const slider = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
+        const valueText = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="smallFancyButton" style="float: right;">${displayText}</div>`);
+        const slider = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`
             <input
                 class="slider"
                 style="clear: both;"
@@ -2378,7 +2436,7 @@ class Slider extends _componentbase__WEBPACK_IMPORTED_MODULE_1__.Component {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -2532,16 +2590,16 @@ class ValueModule {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -2588,7 +2646,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -2611,16 +2669,16 @@ function assignParamIntToBool(object, params, i) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -2663,16 +2721,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -2743,16 +2801,16 @@ const buildings = [
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -2795,17 +2853,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
 
 
 
@@ -2851,7 +2909,7 @@ __webpack_require__.r(__webpack_exports__);
         "RCP Recipes",
         "SBD Subsidiaries",
         "PBL Publicists",
-        `YOU ${_base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.bakeryName}`,
+        `YOU ${_aliases__WEBPACK_IMPORTED_MODULE_3__.Game.bakeryName}`,
         "All stocks",
     ];
     const stockSymbols = [
@@ -2899,17 +2957,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
+/* harmony import */ var _aliases__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3);
 
 
 
@@ -2967,7 +3025,7 @@ __webpack_require__.r(__webpack_exports__);
     (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.assignParam)(plant, params, 2);
     frag.appendChild(plant.write());
     if (one.value._) {
-        const [minCol, minRow, maxCol, maxRow] = _base_loader__WEBPACK_IMPORTED_MODULE_3__.Garden.plotLimits[Math.min(_base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.Objects["Farm"].level - 1, 8)];
+        const [minCol, minRow, maxCol, maxRow] = _aliases__WEBPACK_IMPORTED_MODULE_3__.Garden.plotLimits[Math.min(_aliases__WEBPACK_IMPORTED_MODULE_3__.Game.Objects["Farm"].level - 1, 8)];
         frag.appendChild(new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.Text("at row").write());
         const row = new _base_menu_component__WEBPACK_IMPORTED_MODULE_0__.NumberInput(1, maxRow - minRow, true);
         (0,_helpers__WEBPACK_IMPORTED_MODULE_2__.assignParam)(row, params, 3);
@@ -3029,16 +3087,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -3085,16 +3143,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
 
 
 
@@ -3120,17 +3178,17 @@ const spells = [
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(25);
 
 
 
@@ -3173,17 +3231,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _base_menu_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
 /* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(25);
 /* harmony import */ var _ui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9);
 
 
@@ -3209,7 +3267,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -3217,29 +3275,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   injectCss: () => (/* binding */ injectCss),
 /* harmony export */   injectMenu: () => (/* binding */ injectMenu)
 /* harmony export */ });
-/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(21);
+/* harmony import */ var _stringtohtml__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 
 
+const w = window;
 function injectMenu(menu) {
-    if (_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game === undefined)
+    if (w.Game === undefined)
         throw new Error("Game not found.");
     // override Game.UpdateMenu
-    _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.UpdateMenu = ((target) => {
+    w.Game.UpdateMenu = ((target) => {
         return function (...args) {
             const retVal = target.apply(this, args);
             writeMenu(menu);
             return retVal;
         };
-    })(_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.UpdateMenu);
+    })(w.Game.UpdateMenu);
     // Prevents the options menu from updating by set time interval.
     // This is to prevent dropdown menus from disappearing.
     // Getters/setters make sure the logic is always wrapping around the original function
     // no matter how many times and when it is modified by other mods,
-    let updateMenu = _helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.UpdateMenu.bind(_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game);
-    Object.defineProperty(_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game, "UpdateMenu", {
+    let updateMenu = w.Game.UpdateMenu.bind(w.Game);
+    Object.defineProperty(w.Game, "UpdateMenu", {
         get() {
-            if (_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game.onMenu === "prefs" &&
+            if (w.Game.onMenu === "prefs" &&
                 new Error().stack?.includes("Game.Logic") // hacky way to figure out if function is called by Game.Logic (menu update because of set time interval)
             ) {
                 return () => undefined;
@@ -3256,22 +3315,22 @@ function writeMenu(menu) {
     const blocks = document.getElementsByClassName("block");
     let settingsBlock;
     for (let i = 0; i < blocks.length; i++) {
-        if (blocks[i].textContent?.search(_helpers__WEBPACK_IMPORTED_MODULE_0__.w.loc("Settings")) === 0) {
+        if (blocks[i].textContent?.search(w.loc("Settings")) === 0) {
             settingsBlock = blocks[i];
         }
     }
     if (settingsBlock === undefined)
         return;
     // create menu
-    const block = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="block" style="padding: 0px; margin: 8px 4px;"></div>`);
-    const subsection = (0,_helpers__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="subsection" style="padding: 0px;"></div>`);
+    const block = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="block" style="padding: 0px; margin: 8px 4px;"></div>`);
+    const subsection = (0,_stringtohtml__WEBPACK_IMPORTED_MODULE_0__.elementFromString)(`<div class="subsection" style="padding: 0px;"></div>`);
     block.appendChild(subsection);
     subsection.appendChild(menu.write());
     // insert menu
     settingsBlock.after(block);
 }
 function injectCss(css) {
-    if (_helpers__WEBPACK_IMPORTED_MODULE_0__.w.Game === undefined)
+    if (w.Game === undefined)
         throw new Error("Game not found.");
     // add css
     const style = document.createElement("style");
@@ -3341,101 +3400,25 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _base_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-/* harmony import */ var _menu_menu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
-/* harmony import */ var _base_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8);
-/* harmony import */ var _keybind__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3);
-/* harmony import */ var _actions_actions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(6);
+/* harmony import */ var _mod__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 
-
-
-
-
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-// FUTURE export/load keymappings to/from string
-class Mod {
-    id = _storage__WEBPACK_IMPORTED_MODULE_1__["default"].id;
-    name = _storage__WEBPACK_IMPORTED_MODULE_1__["default"].name;
-    init() {
-        // listen for and trigger keyboard shortcuts
-        function keyDown(e) {
-            let shortcutName;
-            const toRun = [];
-            for (shortcutName in _actions_actions__WEBPACK_IMPORTED_MODULE_5__["default"]) {
-                for (const shortcutPair of _storage__WEBPACK_IMPORTED_MODULE_1__["default"].keybinds[shortcutName]) {
-                    if (shortcutPair == null)
-                        continue;
-                    const [keybind] = shortcutPair;
-                    if (keybind == null)
-                        continue;
-                    if (_keybind__WEBPACK_IMPORTED_MODULE_4__["default"].prototype.match.call(keybind, e)) {
-                        toRun.push([shortcutPair[1], shortcutName, shortcutPair[2]]);
-                    }
-                }
-            }
-            toRun.sort((a, b) => a[0] - b[0]); // sort smallest to largest
-            (async () => {
-                let lastOrder = -100;
-                for (const [order, shortcutName, args] of toRun) {
-                    _actions_actions__WEBPACK_IMPORTED_MODULE_5__["default"][shortcutName](...args);
-                    if (order != lastOrder)
-                        await sleep(150);
-                    lastOrder = order;
-                }
-            })();
-        }
-        document.addEventListener("keydown", keyDown, false);
-        // remove the default game keybinds ctrl+s and ctrl+o by countering them
-        _base_helpers__WEBPACK_IMPORTED_MODULE_0__.w.addEventListener("keydown", (e) => {
-            if (_storage__WEBPACK_IMPORTED_MODULE_1__["default"].allowDefault) {
-                _storage__WEBPACK_IMPORTED_MODULE_1__["default"].allowDefault = false;
+const w = unsafeWindow;
+const gameReadyInterval = setInterval(() => {
+    if (w.Game === undefined || w.Game.ready === undefined || !w.Game.ready)
+        return;
+    w.Game.registerMod(_mod__WEBPACK_IMPORTED_MODULE_0__["default"].id, _mod__WEBPACK_IMPORTED_MODULE_0__["default"]);
+    w.Game.Notify(`${_mod__WEBPACK_IMPORTED_MODULE_0__["default"].name} loaded!`, "", undefined, true);
+    clearInterval(gameReadyInterval);
+    const modsReadyInterval = setInterval(() => {
+        for (const mod of Object.values(w.Game.mods)) {
+            if (mod.init !== 0)
                 return;
-            }
-            if (!_base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.OnAscend && _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.AscendTimer == 0) {
-                if (e.ctrlKey && e.keyCode == 83) {
-                    _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.toSave = false; // prevent save
-                }
-                else if (e.ctrlKey && e.keyCode == 79) {
-                    _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.ClosePrompt(); // close load save
-                }
-            }
-        });
-        // override click cookie to prevent clicks when autoclicking is enabled
-        (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#bigCookie").removeEventListener("click", _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.ClickCookie, false);
-        const oldFunc = _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.ClickCookie;
-        _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.ClickCookie = function (e, amount, autoclicker) {
-            if (_base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.autoclickerInterval == null || autoclicker)
-                return oldFunc(e, amount);
-        };
-        if (!_base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.mods.CookieMonster) {
-            // Cookie monster already overrides big cookie click event
-            (0,_base_helpers__WEBPACK_IMPORTED_MODULE_0__.$)("#bigCookie").addEventListener("click", _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.ClickCookie, false);
         }
-    }
-    delayedInit() {
-        (0,_menu_menu__WEBPACK_IMPORTED_MODULE_2__["default"])();
-    }
-    save() {
-        const save = JSON.stringify(_storage__WEBPACK_IMPORTED_MODULE_1__["default"].saveObj);
-        return save;
-    }
-    load(str) {
-        let parsed;
-        try {
-            parsed = JSON.parse(str);
-        }
-        catch (error) {
-            console.warn(`${name} - Unable to load settings. Reverting to defaults.`);
-            return;
-        }
-        _storage__WEBPACK_IMPORTED_MODULE_1__["default"].saveObj = parsed;
-        _base_loader__WEBPACK_IMPORTED_MODULE_3__.Game.UpdateMenu();
-    }
-    exposed = _storage__WEBPACK_IMPORTED_MODULE_1__["default"].exposed;
-}
-(0,_base_loader__WEBPACK_IMPORTED_MODULE_3__["default"])(new Mod());
+        _mod__WEBPACK_IMPORTED_MODULE_0__["default"].delayedInit();
+        clearInterval(modsReadyInterval);
+    }, 100);
+    w.mod = _mod__WEBPACK_IMPORTED_MODULE_0__["default"]; // DEBUG
+}, 100);
 
 })();
 

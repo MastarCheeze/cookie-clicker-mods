@@ -1,6 +1,5 @@
-import { Game, Pantheon } from "../base/loader";
+import { Game, Pantheon } from "../aliases";
 import { notify } from "../menu/ui";
-import Storage from "../storage";
 import applyDecorator from "./applydecorator";
 
 const godIndexMap = [

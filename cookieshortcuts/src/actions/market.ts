@@ -1,5 +1,5 @@
-import { $ } from "../base/helpers";
-import { Game, Market } from "../base/loader";
+import { $ } from "../aliases";
+import { Game, Market } from "../aliases";
 import { notify } from "../menu/ui";
 import applyDecorator from "./applydecorator";
 

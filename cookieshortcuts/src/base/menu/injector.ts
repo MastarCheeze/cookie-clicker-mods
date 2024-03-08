@@ -1,6 +1,8 @@
-import { w, elementFromString } from "../helpers";
+import { elementFromString } from "./stringtohtml";
 import { Component } from "./componentbase";
 import { css as componentCss } from "./component";
+
+const w = window as any;
 
 export function injectMenu(menu: Component) {
     if (w.Game === undefined) throw new Error("Game not found.");

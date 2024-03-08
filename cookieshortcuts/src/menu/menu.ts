@@ -11,7 +11,7 @@ import grimoire from "./grimoire";
 import cheats from "./cheats";
 import others from "./others";
 import { injectCss, injectMenu } from "../base/menu/injector";
-import { elementFromString } from "../base/helpers";
+import { elementFromString } from "../base/menu/stringtohtml";
 
 export default function build() {
     const menu = new Collapsible(Storage.name, 22, undefined);

@@ -1,4 +1,4 @@
-import { Game } from "../base/loader";
+import { Game } from "../aliases";
 import Keybind from "../keybind";
 import { notify } from "../menu/ui";
 import Storage from "../storage";
