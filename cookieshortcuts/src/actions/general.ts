@@ -11,11 +11,11 @@ export default {
         }
 
         if (Storage.autoclickerInterval == null) {
-            Game.ClickCookie(null, 0);
             Storage.callFromAutoClicker = true;
+            Game.ClickCookie(null, 0);
             Storage.autoclickerInterval = setInterval(() => {
-                Game.ClickCookie(null, 0);
                 Storage.callFromAutoClicker = true;
+                Game.ClickCookie(null, 0);
             }, 1000 / cps);
 
             const keyUp = (e: KeyboardEvent) => {

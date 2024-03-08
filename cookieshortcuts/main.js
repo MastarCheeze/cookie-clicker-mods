@@ -696,11 +696,11 @@ __webpack_require__.r(__webpack_exports__);
             return;
         }
         if (_storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval == null) {
-            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
             _storage__WEBPACK_IMPORTED_MODULE_3__["default"].callFromAutoClicker = true;
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
             _storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval = setInterval(() => {
-                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
                 _storage__WEBPACK_IMPORTED_MODULE_3__["default"].callFromAutoClicker = true;
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
             }, 1000 / cps);
             const keyUp = (e) => {
                 for (const shortcutPair of _storage__WEBPACK_IMPORTED_MODULE_3__["default"].keybinds["general.autoclicker"]) {
