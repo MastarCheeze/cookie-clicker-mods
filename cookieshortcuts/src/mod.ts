@@ -60,7 +60,7 @@ class Mod {
         $("#bigCookie")!.removeEventListener("click", Game.ClickCookie, false);
         const oldFunc = Game.ClickCookie;
         Game.ClickCookie = function (...args: any[]) {
-            if (Game.autoclickerInterval == null || Storage.callFromAutoClicker) {
+            if (Storage.autoclickerInterval == null || Storage.callFromAutoClicker) {
                 Storage.callFromAutoClicker = false;
                 return oldFunc(...args);
             }

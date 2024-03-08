@@ -72,7 +72,7 @@ class Mod {
         (0,_aliases__WEBPACK_IMPORTED_MODULE_2__.$)("#bigCookie").removeEventListener("click", _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie, false);
         const oldFunc = _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie;
         _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie = function (...args) {
-            if (_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.autoclickerInterval == null || _storage__WEBPACK_IMPORTED_MODULE_0__["default"].callFromAutoClicker) {
+            if (_storage__WEBPACK_IMPORTED_MODULE_0__["default"].autoclickerInterval == null || _storage__WEBPACK_IMPORTED_MODULE_0__["default"].callFromAutoClicker) {
                 _storage__WEBPACK_IMPORTED_MODULE_0__["default"].callFromAutoClicker = false;
                 return oldFunc(...args);
             }
