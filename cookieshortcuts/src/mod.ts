@@ -60,7 +60,10 @@ class Mod {
         $("#bigCookie")!.removeEventListener("click", Game.ClickCookie, false);
         const oldFunc = Game.ClickCookie;
         Game.ClickCookie = function (...args: any[]) {
-            if (Game.autoclickerInterval == null || Storage.callFromAutoClicker) return oldFunc(...args);
+            if (Game.autoclickerInterval == null || Storage.callFromAutoClicker) {
+                Storage.callFromAutoClicker = false;
+                return oldFunc(...args);
+            }
         };
         if (!Game.mods.CookieMonster) {
             // Cookie monster already overrides big cookie click event
