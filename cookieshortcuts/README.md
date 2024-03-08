@@ -49,6 +49,8 @@ Shortcut combos can be created in advanced mode. Assign the same keybind to mult
 
 ## Installation
 
+[Source code](./main.js)
+
 ### Userscript
 
 Paste [this userscript](./userscript.js) in a new script in your preferred userscript manager.

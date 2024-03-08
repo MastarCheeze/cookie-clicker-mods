@@ -14,6 +14,8 @@ Compatible with Cookie Monster.
 
 ## Installation
 
+[Source code](./main.js)
+
 ### Userscript
 
 Paste [this userscript](./userscript.js) in a new script in your preferred userscript manager.
