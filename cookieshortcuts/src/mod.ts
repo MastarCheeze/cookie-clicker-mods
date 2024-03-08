@@ -59,8 +59,8 @@ class Mod {
         // override click cookie to prevent clicks when autoclicking is enabled
         $("#bigCookie")!.removeEventListener("click", Game.ClickCookie, false);
         const oldFunc = Game.ClickCookie;
-        Game.ClickCookie = function (e: PointerEvent, amount: number, autoclicker: boolean) {
-            if (Game.autoclickerInterval == null || autoclicker) return oldFunc(e, amount);
+        Game.ClickCookie = function (...args: any[]) {
+            if (Game.autoclickerInterval == null || Storage.callFromAutoClicker) return oldFunc(...args);
         };
         if (!Game.mods.CookieMonster) {
             // Cookie monster already overrides big cookie click event

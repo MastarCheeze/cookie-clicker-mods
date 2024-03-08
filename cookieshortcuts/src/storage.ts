@@ -74,6 +74,7 @@ class Storage {
     public collapsibles: boolean[] = [];
 
     public autoclickerInterval: ReturnType<typeof setInterval> | null = null; // id of auto clicker setinterval
+    public callFromAutoClicker = false; // flag variable to show if click cookie is called from shortcut autoclicker
     public allowDefault = false; // used for overriding the default game keybinds ctrl+s and ctrl+o
 
     constructor() {

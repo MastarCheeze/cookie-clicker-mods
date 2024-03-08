@@ -71,9 +71,9 @@ class Mod {
         // override click cookie to prevent clicks when autoclicking is enabled
         (0,_aliases__WEBPACK_IMPORTED_MODULE_2__.$)("#bigCookie").removeEventListener("click", _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie, false);
         const oldFunc = _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie;
-        _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie = function (e, amount, autoclicker) {
-            if (_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.autoclickerInterval == null || autoclicker)
-                return oldFunc(e, amount);
+        _aliases__WEBPACK_IMPORTED_MODULE_2__.Game.ClickCookie = function (...args) {
+            if (_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.autoclickerInterval == null || _storage__WEBPACK_IMPORTED_MODULE_0__["default"].callFromAutoClicker)
+                return oldFunc(...args);
         };
         if (!_aliases__WEBPACK_IMPORTED_MODULE_2__.Game.mods.CookieMonster) {
             // Cookie monster already overrides big cookie click event
@@ -180,6 +180,7 @@ class Storage {
     keybinds = structuredClone(this.defaultKeybinds);
     collapsibles = [];
     autoclickerInterval = null; // id of auto clicker setinterval
+    callFromAutoClicker = false; // flag variable to show if click cookie is called from shortcut autoclicker
     allowDefault = false; // used for overriding the default game keybinds ctrl+s and ctrl+o
     constructor() {
         Object.seal(this.prefs);
@@ -693,9 +694,11 @@ __webpack_require__.r(__webpack_exports__);
             return;
         }
         if (_storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval == null) {
-            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
+            _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
+            _storage__WEBPACK_IMPORTED_MODULE_3__["default"].callFromAutoClicker = true;
             _storage__WEBPACK_IMPORTED_MODULE_3__["default"].autoclickerInterval = setInterval(() => {
-                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0, true);
+                _aliases__WEBPACK_IMPORTED_MODULE_0__.Game.ClickCookie(null, 0);
+                _storage__WEBPACK_IMPORTED_MODULE_3__["default"].callFromAutoClicker = true;
             }, 1000 / cps);
             const keyUp = (e) => {
                 for (const shortcutPair of _storage__WEBPACK_IMPORTED_MODULE_3__["default"].keybinds["general.autoclicker"]) {
