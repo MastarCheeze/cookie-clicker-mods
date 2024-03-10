@@ -23,8 +23,8 @@ class Storage {
     };
     private readonly tempKeybinds = (<T extends TKeybinds>(obj: T) => obj)({
         "general.autoclicker": [[new Keybind("Space"), this.defaultOrder, [10]]],
-        "general.clickGoldenCookie": [[new Keybind("."), this.defaultOrder, [true, false]]],
-        "general.clickFortuneCookie": [[new Keybind("."), this.defaultOrder, []]],
+        "general.clickGoldenCookie": [[new Keybind("Period"), this.defaultOrder, [true, false]]],
+        "general.clickFortuneCookie": [[new Keybind("Period"), this.defaultOrder, []]],
         "general.popWrinkler": [[null, this.defaultOrder, [true]]],
         "general.save": [[new Keybind("Ctrl", "KeyS"), this.defaultOrder, []]],
         "general.exportSave": [[null, this.defaultOrder, []]],

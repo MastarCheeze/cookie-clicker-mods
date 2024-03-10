@@ -133,8 +133,8 @@ class Storage {
     };
     tempKeybinds = ((obj) => obj)({
         "general.autoclicker": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("Space"), this.defaultOrder, [10]]],
-        "general.clickGoldenCookie": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("."), this.defaultOrder, [true, false]]],
-        "general.clickFortuneCookie": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("."), this.defaultOrder, []]],
+        "general.clickGoldenCookie": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("Period"), this.defaultOrder, [true, false]]],
+        "general.clickFortuneCookie": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("Period"), this.defaultOrder, []]],
         "general.popWrinkler": [[null, this.defaultOrder, [true]]],
         "general.save": [[new _keybind__WEBPACK_IMPORTED_MODULE_1__["default"]("Ctrl", "KeyS"), this.defaultOrder, []]],
         "general.exportSave": [[null, this.defaultOrder, []]],
