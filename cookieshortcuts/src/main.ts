@@ -18,5 +18,5 @@ const gameReadyInterval = setInterval(() => {
         clearInterval(modsReadyInterval);
     }, 100);
 
-    w.mod = mod; // DEBUG
+    // w.mod = mod; // DEBUG
 }, 100);
