@@ -7,3 +7,7 @@ Fully customisable keyboard shortcuts for 40+ different actions. Create shortcut
 ## [Hoverclicker](./hoverclicker/README.md)
 
 Click the big cookie, golden cookies and more by just hovering over them.
+
+## [Antisleep](./antisleep/README.md)
+
+A small script to keep Cookie Clicker running in the background while not in focus.
