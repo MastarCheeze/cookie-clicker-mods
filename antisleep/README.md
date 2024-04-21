@@ -4,6 +4,8 @@ A small script to keep Cookie Clicker running in the background while not in foc
 
 **How it works:** By default, browsers throttle tabs that aren't focused, causing them to run slower. The script plays an empty sound every 30 seconds to keep the tab active.
 
+Tested on Chromium
+
 ## Installation
 
 [Source code](./main.js)
