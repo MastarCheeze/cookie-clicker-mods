@@ -5,4 +5,4 @@ setInterval(() => {
 }, 30000);
 
 Game.Notify("Antisleep loaded!", "", null, true);
-Game.registerMod("Antisleep", {});
+Game.registerMod("Antisleep", {init: 0});
