@@ -233,15 +233,6 @@ let Garden;
 let Market;
 let Pantheon;
 let Grimoire;
-let modsReady = false;
-const modsReadyInterval = setInterval(() => {
-    for (const mod of Object.values(Game.mods)) {
-        if (mod.init !== 0)
-            return;
-    }
-    modsReady = true;
-    clearInterval(modsReadyInterval);
-}, 100);
 // initialise shortened minigame variables
 const gardenInterval = setInterval(() => {
     if (Game.Objects["Farm"]["minigameLoaded"]) {
@@ -3412,7 +3403,7 @@ const gameReadyInterval = setInterval(() => {
     if (w.Game === undefined || w.Game.ready === undefined || !w.Game.ready)
         return;
     w.Game.registerMod(_mod__WEBPACK_IMPORTED_MODULE_0__["default"].id, _mod__WEBPACK_IMPORTED_MODULE_0__["default"]);
-    w.Game.Notify(`${_mod__WEBPACK_IMPORTED_MODULE_0__["default"].name} loaded!`, "", undefined, true);
+    w.Game.Notify(`${_mod__WEBPACK_IMPORTED_MODULE_0__["default"].name} loaded!`, "", undefined, 3);
     clearInterval(gameReadyInterval);
     const modsReadyInterval = setInterval(() => {
         for (const mod of Object.values(w.Game.mods)) {

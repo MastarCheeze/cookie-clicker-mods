@@ -150,7 +150,7 @@ const mod = {
             }
         };
 
-        Game.Notify("Hoverclicker loaded!", "", null, true);
+        Game.Notify("Hoverclicker loaded!", "", null, 3);
     },
     save: function () {
         const tokens = [];

@@ -6,7 +6,7 @@ const gameReadyInterval = setInterval(() => {
     if (w.Game === undefined || w.Game.ready === undefined || !w.Game.ready) return;
 
     w.Game.registerMod(mod.id, mod);
-    w.Game.Notify(`${mod.name} loaded!`, "", undefined, true);
+    w.Game.Notify(`${mod.name} loaded!`, "", undefined, 3);
 
     clearInterval(gameReadyInterval);
 

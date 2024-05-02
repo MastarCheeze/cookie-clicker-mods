@@ -4,5 +4,5 @@ setInterval(() => {
     audio.play();
 }, 30000);
 
-Game.Notify("Antisleep loaded!", "", null, true);
+Game.Notify("Antisleep loaded!", "", null, 3);
 Game.registerMod("Antisleep", {init: 0});
