@@ -1,6 +1,6 @@
 # What Lump Did I Harvest
 
-A mod that changes the 'You harvested _n_ sugar lumps while you were away' notification to be more helpful.
+A mod that replaces the 'You harvested _n_ sugar lumps while you were away' message with something more helpful.
 
 Vanilla:
 
