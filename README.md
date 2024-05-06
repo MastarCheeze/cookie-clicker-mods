@@ -11,3 +11,7 @@ Click the big cookie, golden cookies and more by just hovering over them.
 ## [Antisleep](./antisleep/README.md)
 
 A small script to keep Cookie Clicker running in the background while not in focus.
+
+## [What Lump Did I Harvest](./whatlumpdidiharvest/README.md)
+
+A mod that changes the 'You harvested _n_ sugar lumps while you were away' notification to be more helpful.
