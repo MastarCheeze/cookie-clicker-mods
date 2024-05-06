@@ -1,7 +1,5 @@
 const mod = {
     init: function () {
-        console.log("Init");
-
         this.data = {
             lumps: undefined,
             lumpT: undefined,
@@ -21,8 +19,6 @@ const mod = {
     createNotification: function () {
         // remove default harvest notification
         let noteId = Game.Notes.filter((note) => note.pic[0] === 29 && note.pic[1] === 14).map((note) => note.id)[0];
-        console.log(`Game.Notes: ${Game.Notes}`);
-        console.log(`noteId: ${noteId}`);
         if (noteId === undefined) {
             return;
         }
@@ -80,8 +76,6 @@ const mod = {
         return tokens.join();
     },
     load: function (str) {
-        console.log("Load");
-
         const tokens = str.split(",");
         let i = 0;
         for (let key in this.data) {
