@@ -2,7 +2,7 @@
 
 A mod that changes the 'You harvested _n_ sugar lumps while you were away' notification to be more helpful.
 
-Original:
+Vanilla:
 
 ![Notifications of lumps harvested while offline](imgs/default-notification.png)
 
