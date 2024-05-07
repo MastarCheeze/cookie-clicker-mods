@@ -80,9 +80,9 @@ const GardenNotifications = {
                                 }
                             }
                         }
-                        newPlants = GardenNotifications ? [...new Set(newPlants)] : [];
-                        maturePlants = GardenNotifications ? [...new Set(maturePlants)] : [];
-                        dyingPlants = GardenNotifications ? [...new Set(dyingPlants)] : [];
+                        newPlants = GardenNotifications.newPlants ? [...new Set(newPlants)] : [];
+                        maturePlants = GardenNotifications.maturePlants ? [...new Set(maturePlants)] : [];
+                        dyingPlants = GardenNotifications.dyingPlants ? [...new Set(dyingPlants)] : [];
 
                         if (newPlants.length > 0) {
                             notify = true;
