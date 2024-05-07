@@ -15,3 +15,15 @@ A small script to keep Cookie Clicker running in the background while not in foc
 ## [What Lump Did I Harvest](./whatlumpdidiharvest/README.md)
 
 A mod that changes the 'You harvested _n_ sugar lumps while you were away' notification to be more helpful.
+
+## Miscellaneous
+
+Scripts that are either too simple to be a mod, not complete, or I'm lazy to add a UI.
+
+-   [Current lump type](./misc/current-lump-type.js)
+-   [Cyclius info](./misc/cyclius-info.js)
+-   [Bank worth in time](./misc/bank-worth-in-time.js)
+-   [Buy 50](./misc/buy-50.js)
+-   [Unredify](./misc/unredify.js)
+-   [Garden notifications](./misc/garden-notifications.js)
+-   [Market notifications](./misc/market-notifications.js)
