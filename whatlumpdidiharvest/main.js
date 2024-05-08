@@ -27,7 +27,7 @@
             }
 
             // add custom harvest notification
-            const idToName = ["normal", "bifuricated", "golden", "meaty", "caramelized"];
+            const idToName = ["normal", "bifurcated", "golden", "meaty", "caramelized"];
             const idToIcon = [
                 [29, 14],
                 [29, 15],
@@ -47,7 +47,7 @@
                 let firstEarned = Game.lumps - this.data.lumps - subsequentEarned;
 
                 Game.Notify(
-                    `${firstEarned > 0 ? firstEarned : "No"} lump${firstEarned === 1 ? "" : "s"} earned`,
+                    `${firstEarned > 0 ? firstEarned : "No"} lump${firstEarned === 1 ? "" : "s"} gained`,
                     `A ${name} sugar lump was harvested while offline`,
                     icon,
                     0,
@@ -55,7 +55,7 @@
 
                 if (subsequentEarned !== 0) {
                     Game.Notify(
-                        `${subsequentEarned} more lump${subsequentEarned === 1 ? "" : "s"} earned`,
+                        `${subsequentEarned} more lump${subsequentEarned === 1 ? "" : "s"} gained`,
                         `${subsequentEarned} more normal lump${
                             subsequentEarned === 1 ? " was" : "s were"
                         } harvested while offline`,
